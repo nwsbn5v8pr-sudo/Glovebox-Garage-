@@ -2,7 +2,7 @@
 // The app files are cached on install; pages are served from the cache and
 // refreshed in the background, so the app opens instantly and works offline.
 // Bump VERSION whenever the app files change.
-var VERSION = "gg-2026-10-13d";
+var VERSION = "gg-2026-10-14";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-32.png"];
 
 self.addEventListener("install", function (e) {
