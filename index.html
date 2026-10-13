@@ -216,6 +216,8 @@ a.btn{text-decoration:none;color:inherit;display:block}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .two>*{min-width:0}
+.ymm{display:grid;grid-template-columns:minmax(96px,2fr) 3fr;gap:10px}
+.ymm>*{min-width:0}
 .presets{display:flex;gap:8px;flex-wrap:wrap}
 .preset{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 13px;font-weight:600;font-size:14px}
 .preset[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -820,16 +822,16 @@ function sample(){
   return clean({
     units:"mi",example:true,
     vehicles:[
-      {id:uid(),name:"2019 Honda CR-V",plate:"Family car",vin:"5J6RW2H82KL004817",
+      {id:uid(),name:"2019 Honda CR-V",year:"2019",make:"Honda",model:"CR-V",plate:"Family car",vin:"5J6RW2H82KL004817",
         specs:JSON.parse("{\"year\": \"2019\", \"make\": \"Honda\", \"model\": \"CR-V\", \"trim\": \"EX-L\", \"body\": \"Sport Utility Vehicle (SUV)\", \"engine\": \"1.5L 4-cylinder, 190 hp\", \"fuel\": \"Gasoline\", \"drive\": \"4WD/4-Wheel Drive/4x4\", \"trans\": \"Continuously Variable Transmission (CVT)\", \"built\": \"East Liberty, United States (USA)\", \"gvwr\": \"Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)\", \"fetched\": \""+iso(t)+"\"}"),
         recalls:JSON.parse("{\"count\": 8, \"items\": [{\"id\": \"26V332000\", \"date\": \"2026-05-21\", \"component\": \"Air bags \\u203a Sensor \\u203a Occupant classification \\u203a Front passenger\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2018-2021, 2023 Acura TLX, 2019-2024 RDX, 2017-2020, 2022-2026 MDX, 2017-2021, 2023, 2025 Honda Ridgeline, 2017-2022 Pilot, 2019-2021 Passport, 2018-2026 Odyssey, 2019-2022 Insight, 2019-2021 HR-V, 2018-2020 Fit, 2020-2022 CR-V Hybrid, 2017-2022 CR-V, 2017-2018, 2021 Civic Type R, 2017-2021 Civic hatchback, 2016-2020 Civic coupe, 2016-2022 Civic, 2017-2022 Accord Hybrid, and 2016-2022 Accord vehicles. The front passenger seat weight sensor\\u2026\"}, {\"id\": \"23V858000\", \"date\": \"2023-12-18\", \"component\": \"Fuel system, gasoline \\u203a Delivery \\u203a Fuel pump\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2013-2023 Honda Accord, Civic Coupe, Civic Sedan, Civic Hatchback, Civic Type R, CR-V, HR-V, Ridgeline, Odyssey, Acura ILX, MDX, MDX Hybrid, RDX, RLX, TLX, 2019-2022 Honda Insight, Passport, 2020 Honda CR-V Hybrid, 2018-2019 Honda Clarity PHEV, Fit, and 2015-2020 Honda Accord Hybrid, Pilot, Acura NSX vehicles. The fuel pump inside the fuel tank may fail.\"}, {\"id\": \"23V158000\", \"date\": \"2023-03-09\", \"component\": \"Seat belts \\u203a Front \\u203a Buckle assembly\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2017-2020 CR-V, 2018-2019 Accord and Accord Hybrid, 2018-2020 Odyssey, 2019 Insight, and 2019-2020 Acura RDX vehicles. A manufacturing issue with the front seat belts may cause the seat belt buckle channel to interfere with the release button, preventing the seat belt buckle from latching.\"}, {\"id\": \"21V215000\", \"date\": \"2021-03-25\", \"component\": \"Fuel system, gasoline \\u203a Delivery \\u203a Fuel pump\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019-2020 Acura MDX, MDX Sport Hybrid, RDX, TLX, Honda Accord, Civic Hatchback, Insight, 2019 Acura ILX, Honda Accord Hybrid, Civic Coupe, Civic Coupe Si, Civic Sedan, Civic Sedan Si, Civic Type R, Fit, HR-V, Odyssey, Passport, Pilot and Ridgeline, and 2018-2019 CR-V vehicles. The low-pressure fuel pump inside the fuel tank may fail.\"}, {\"id\": \"19V865000\", \"date\": \"2019-12-05\", \"component\": \"Structure \\u203a Frame and members\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019-2020 CR-V vehicles. The rear subframe bolts were improperly manufactured and may loosen, allowing the rear subframe to separate.\"}, {\"id\": \"19V694000\", \"date\": \"2019-09-26\", \"component\": \"Equipment \\u203a Other \\u203a Owners/service/other manual\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The owner's guide incorrectly describes when the \\\"Passenger Airbag Off\\\" indicator should illuminate. As such, these vehicles fail to comply with the requirements of Federal Motor Vehicle Safety Standard (FMVSS) number 208, \\\"Occupant Crash Protection.\\\"\"}, {\"id\": \"19V569000\", \"date\": \"2019-08-01\", \"component\": \"Fuel system, gasoline \\u203a Storage \\u203a Tank assembly\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The joint weld between the fuel tank and the vapor return line may have been insufficiently welded, causing the weld to fail.\"}, {\"id\": \"19V383000\", \"date\": \"2019-05-21\", \"component\": \"Air bags \\u203a Frontal \\u203a Driver clockspring/spiral cassette\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The metal core of the steering wheel may have burrs which can damage the harnesses routed within, potentially disabling the driver's air bag or causing it to deploy without warning.\"}], \"checked\": \""+iso(t)+"\", \"key\": \"HONDA|CR-V|2019\"}"),reg:{number:"8MPD514",state:"California",expires:ago(-210)},miles:46850,milesDate:ago(2),intervalMiles:5000,intervalMonths:6,
         log:[{id:uid(),date:ago(70),miles:42600,note:"Full synthetic 0W-20"},{id:uid(),date:ago(250),miles:37700,note:""}],
         services:[{id:uid(),type:"Tire rotation",date:ago(70),miles:42600,note:""},{id:uid(),type:"Cabin air filter",date:ago(70),miles:42600,note:""},
           {id:uid(),type:"Battery replacement",date:ago(400),miles:33100,note:"3-year warranty"}]},
-      {id:uid(),name:"2015 Ford F-150",plate:"Work truck",look:"offroad",reg:{number:"7XKR291",state:"Texas",expires:ago(-20)},miles:118400,milesDate:ago(1),intervalMiles:7500,intervalMonths:6,
+      {id:uid(),name:"2015 Ford F-150",year:"2015",make:"Ford",model:"F-150",plate:"Work truck",look:"offroad",reg:{number:"7XKR291",state:"Texas",expires:ago(-20)},miles:118400,milesDate:ago(1),intervalMiles:7500,intervalMonths:6,
         log:[{id:uid(),date:ago(160),miles:111300,note:"5W-30, new filter"}],
         services:[{id:uid(),type:"New tires",date:ago(300),miles:104800,note:"Set of 4, all-terrain"},{id:uid(),type:"Tire rotation",date:ago(160),miles:111300,note:""},{id:uid(),type:"Engine air filter",date:ago(160),miles:111300,note:""}]},
-      {id:uid(),name:"2012 Toyota Corolla",plate:"Sam's car",miles:132900,milesDate:ago(5),intervalMiles:5000,intervalMonths:6,
+      {id:uid(),name:"2012 Toyota Corolla",year:"2012",make:"Toyota",model:"Corolla",plate:"Sam's car",miles:132900,milesDate:ago(5),intervalMiles:5000,intervalMonths:6,
         log:[{id:uid(),date:ago(205),miles:127600,note:""}],services:[]}
     ]
   });
@@ -842,6 +844,7 @@ function clean(d){
     if(!v||typeof v!=="object")return;
     out.vehicles.push({
       id:String(v.id||uid()),name:String(v.name||"Vehicle").slice(0,60),plate:String(v.plate||"").slice(0,60),
+      year:/^\d{4}$/.test(String(v.year||""))?String(v.year):"",make:cleanStr(v.make,40),model:cleanStr(v.model,60),
       miles:+v.miles>0?Math.round(+v.miles):0,milesDate:parse(v.milesDate)?v.milesDate:"",
       look:lookChoices().some(function(c){return c[0]===v.look})?v.look:"",
       vin:vinClean(v.vin),
@@ -1346,7 +1349,9 @@ function renderVehicle(v){
   if($("vinLookup"))$("vinLookup").onclick=function(){
     busy("vinLookup","Looking up…");
     lookUpVin(v).then(function(sp){
-      v.specs=sp;save();
+      v.specs=sp;
+      if(!v.make&&!v.model){v.year=/^\d{4}$/.test(sp.year||"")?sp.year:v.year;v.make=cleanStr(sp.make,40);v.model=cleanStr(sp.model,60)}
+      save();
       return checkRecalls(sp).then(function(rc){v.recalls=rc;save()},function(){}).then(function(){
         render();
         var nice=[sp.year,sp.make,sp.model,sp.trim].filter(Boolean).join(" ");
@@ -1544,15 +1549,99 @@ function confirmSheet(title,body,okLabel,fn,danger){
     function(){$("cCancel").onclick=closeSheet;$("cOk").onclick=function(){closeSheet();fn()}});
 }
 
+// Makes and popular models for the Add vehicle dropdowns. Online, NHTSA's list for the chosen year is added too.
+var CAR_MAKES={
+  "Acura":"CL,ILX,Integra,Legend,MDX,NSX,RDX,RL,RLX,RSX,TL,TLX,TSX,ZDX",
+  "Alfa Romeo":"4C,Giulia,Spider,Stelvio,Tonale",
+  "AMC":"AMX,Eagle,Gremlin,Hornet,Javelin,Pacer,Rebel",
+  "Audi":"A3,A4,A5,A6,A7,A8,allroad,e-tron,Q3,Q4 e-tron,Q5,Q7,Q8,R8,RS 5,S4,TT",
+  "BMW":"1 Series,2 Series,3 Series,4 Series,5 Series,7 Series,8 Series,i3,i4,i7,iX,M3,M5,X1,X2,X3,X4,X5,X6,X7,Z3,Z4",
+  "Buick":"Cascada,Century,Enclave,Encore,Encore GX,Envision,Envista,Grand National,LaCrosse,LeSabre,Lucerne,Park Avenue,Regal,Riviera,Skylark,Verano",
+  "Cadillac":"ATS,CT4,CT5,CT6,CTS,DeVille,DTS,Eldorado,Escalade,Fleetwood,Lyriq,Seville,SRX,STS,XT4,XT5,XT6,XTS",
+  "Chevrolet":"Astro,Avalanche,Blazer,Bel Air,Bolt EV,Bolt EUV,C10,Camaro,Caprice,Captiva,Cavalier,Chevelle,Cobalt,Colorado,Corvette,Cruze,El Camino,Equinox,Express,HHR,Impala,Malibu,Monte Carlo,Nova,S-10,Silverado 1500,Silverado 2500HD,Silverado 3500HD,Sonic,Spark,Suburban,Tahoe,Tracker,TrailBlazer,Traverse,Trax,Uplander,Volt",
+  "Chrysler":"200,300,Aspen,Concorde,Crossfire,Pacifica,PT Cruiser,Sebring,Town & Country,Voyager",
+  "Dodge":"Avenger,Caliber,Caravan,Challenger,Charger,Coronet,Dakota,Dart,Durango,Grand Caravan,Hornet,Intrepid,Journey,Magnum,Neon,Nitro,Ram 1500,Stratus,Viper",
+  "Fiat":"124 Spider,500,500L,500X",
+  "Ford":"Bronco,Bronco Sport,C-Max,Crown Victoria,E-Series,EcoSport,Edge,Escape,Escort,Excursion,Expedition,Explorer,Explorer Sport Trac,F-100,F-150,F-150 Lightning,F-250,F-350,Fairlane,Falcon,Fiesta,Five Hundred,Flex,Focus,Fusion,Galaxie,GT,Maverick,Mustang,Mustang Mach-E,Ranger,Taurus,Thunderbird,Transit,Transit Connect,Windstar",
+  "Genesis":"G70,G80,G90,GV60,GV70,GV80",
+  "GMC":"Acadia,Canyon,Envoy,Hummer EV,Jimmy,Safari,Savana,Sierra 1500,Sierra 2500HD,Sierra 3500HD,Sonoma,Terrain,Yukon,Yukon XL",
+  "Honda":"Accord,Civic,Clarity,CR-V,CR-Z,Element,Fit,HR-V,Insight,Odyssey,Passport,Pilot,Prelude,Prologue,Ridgeline,S2000",
+  "Hummer":"H1,H2,H3",
+  "Hyundai":"Accent,Azera,Elantra,Equus,Genesis,Ioniq,Ioniq 5,Ioniq 6,Kona,Palisade,Santa Cruz,Santa Fe,Sonata,Tiburon,Tucson,Veloster,Venue",
+  "Infiniti":"EX35,FX35,G35,G37,JX35,M35,Q50,Q60,Q70,QX30,QX50,QX55,QX56,QX60,QX80",
+  "Jaguar":"E-Pace,F-Pace,F-Type,I-Pace,S-Type,X-Type,XE,XF,XJ,XK",
+  "Jeep":"Cherokee,CJ,Commander,Compass,Gladiator,Grand Cherokee,Grand Wagoneer,Liberty,Patriot,Renegade,Wagoneer,Wrangler",
+  "Kia":"Carnival,EV6,EV9,Forte,K5,K900,Niro,Optima,Rio,Sedona,Seltos,Sorento,Soul,Spectra,Sportage,Stinger,Telluride",
+  "Land Rover":"Defender,Discovery,Discovery Sport,LR2,LR3,LR4,Range Rover,Range Rover Evoque,Range Rover Sport,Range Rover Velar",
+  "Lexus":"ES,GS,GX,IS,LC,LS,LX,NX,RC,RX,RZ,SC,TX,UX",
+  "Lincoln":"Aviator,Continental,Corsair,MKC,MKS,MKT,MKX,MKZ,Mark VIII,Nautilus,Navigator,Town Car",
+  "Lucid":"Air,Gravity",
+  "Mazda":"CX-3,CX-30,CX-5,CX-50,CX-7,CX-70,CX-9,CX-90,Mazda2,Mazda3,Mazda5,Mazda6,MPV,MX-5 Miata,MX-30,Protege,RX-7,RX-8,Tribute",
+  "Mercedes-Benz":"A-Class,C-Class,CLA,CLK,CLS,E-Class,EQB,EQE,EQS,G-Class,GL,GLA,GLB,GLC,GLE,GLK,GLS,M-Class,S-Class,SL,SLK,Sprinter",
+  "Mercury":"Cougar,Grand Marquis,Mariner,Milan,Montego,Mountaineer,Sable",
+  "Mini":"Clubman,Convertible,Cooper,Countryman,Paceman",
+  "Mitsubishi":"3000GT,Eclipse,Eclipse Cross,Endeavor,Galant,Lancer,Mirage,Montero,Outlander,Outlander Sport",
+  "Nissan":"200SX,240SX,300ZX,350Z,370Z,Altima,Ariya,Armada,Frontier,Juke,Kicks,Leaf,Maxima,Murano,NV200,Pathfinder,Quest,Rogue,Rogue Sport,Sentra,Titan,Versa,Xterra,Z",
+  "Oldsmobile":"442,Alero,Aurora,Bravada,Cutlass,Delta 88,Intrigue,Silhouette",
+  "Plymouth":"Barracuda,Duster,Fury,Neon,Prowler,Road Runner,Valiant,Voyager",
+  "Polestar":"1,2,3,4",
+  "Pontiac":"Aztek,Bonneville,Firebird,G6,G8,Grand Am,Grand Prix,GTO,LeMans,Montana,Solstice,Sunfire,Tempest,Torrent,Trans Am,Vibe",
+  "Porsche":"718 Boxster,718 Cayman,911,Boxster,Cayenne,Cayman,Macan,Panamera,Taycan",
+  "Ram":"1500,2500,3500,ProMaster,ProMaster City",
+  "Rivian":"R1S,R1T,R2",
+  "Saab":"9-2X,9-3,9-5,9-7X,900",
+  "Saturn":"Astra,Aura,Ion,L-Series,Outlook,Relay,S-Series,Sky,Vue",
+  "Scion":"FR-S,iA,iM,iQ,tC,xA,xB,xD",
+  "Subaru":"Ascent,Baja,BRZ,Crosstrek,Forester,Impreza,Legacy,Outback,Solterra,Tribeca,WRX",
+  "Suzuki":"Aerio,Forenza,Grand Vitara,Kizashi,Samurai,Sidekick,SX4,XL-7",
+  "Tesla":"Cybertruck,Model 3,Model S,Model X,Model Y,Roadster",
+  "Toyota":"4Runner,86,Avalon,bZ4X,C-HR,Camry,Celica,Corolla,Corolla Cross,Crown,FJ Cruiser,Grand Highlander,GR86,Highlander,Land Cruiser,Matrix,MR2,Pickup,Prius,RAV4,Sequoia,Sienna,Supra,Tacoma,Tercel,Tundra,Venza,Yaris",
+  "Volkswagen":"Arteon,Atlas,Atlas Cross Sport,Beetle,Bus,CC,Golf,GTI,ID.4,Jetta,Passat,Rabbit,Taos,Tiguan,Touareg",
+  "Volvo":"240,740,850,C30,C40,EX30,EX90,S40,S60,S70,S80,S90,V50,V60,V70,V90,XC40,XC60,XC70,XC90"
+};
+var MAKE_NAMES=Object.keys(CAR_MAKES).sort(function(a,b){return a.localeCompare(b)});
+var modelCache={};
+function makeModels(make){return CAR_MAKES[make]?CAR_MAKES[make].split(","):[]}
+// Splits an older name like "2019 Honda CR-V" into its year, make and model
+function splitName(name){
+  var m=/^\s*((?:19|20)\d\d)\s+(.+)$/.exec(name||""),out={year:"",make:"",model:""};if(!m)return out;
+  var rest=m[2],best="";
+  MAKE_NAMES.concat(["Chevy","VW","Mercedes"]).forEach(function(mk){if(rest.toLowerCase().indexOf(mk.toLowerCase()+" ")===0&&mk.length>best.length)best=mk});
+  if(!best)return out;
+  var make={Chevy:"Chevrolet",VW:"Volkswagen",Mercedes:"Mercedes-Benz"}[best]||best,model=rest.slice(best.length).trim();
+  return {year:m[1],make:make,model:model};
+}
+// NHTSA's model list for one make and year (free, no key). Quietly skipped offline.
+function onlineModels(make,year){
+  var k=make+"|"+year;
+  if(modelCache[k])return Promise.resolve(modelCache[k]);
+  if(!year||!make||inViewer()||navigator.onLine===false)return Promise.resolve([]);
+  return fetchJson("https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/"+encodeURIComponent(make)+"/modelyear/"+year+"?format=json").then(function(j){
+    var seen={},list=(j&&j.Results||[]).map(function(r){return cleanStr(r&&r.Model_Name,60)}).filter(function(x){var l=x.toLowerCase();if(!x||seen[l])return false;seen[l]=1;return true});
+    return (modelCache[k]=list);
+  },function(){return []});
+}
 function readNum(id){var v=String($(id).value).replace(/[^\d.]/g,"");return v===""?NaN:Math.round(+v)}
 
 function vehicleSheet(v,focusId){
   var isNew=!v,im=v?v.intervalMiles:(unit()==="km"?8000:5000),imo=v?v.intervalMonths:6;
   var milePresets=unit()==="km"?[5000,8000,10000,15000]:[3000,5000,7500,10000];
+  var ymm=v?(v.make||v.year?{year:v.year,make:v.make,model:v.model}:splitName(v.name)):{year:"",make:"",model:""};
+  var years=[],y0=today().getFullYear()+1;for(var yy=y0;yy>=1950;yy--)years.push(String(yy));
+  if(ymm.year&&years.indexOf(ymm.year)<0)years.push(ymm.year);
+  var makeOther=!!ymm.make&&MAKE_NAMES.indexOf(ymm.make)<0;
   var h='<h2 id="sheetTitle">'+(isNew?"Add vehicle":"Edit vehicle")+'</h2>'+
     '<form id="vForm" novalidate>'+
     '<div style="display:flex;flex-direction:column;gap:14px">'+
-    '<div class="field"><label for="vName">Vehicle</label><input id="vName" maxlength="60" autocomplete="off" placeholder="e.g. 2019 Honda CR-V" value="'+(v?esc(v.name):"")+'"></div>'+
+    '<div class="field"><span class="lbl">Year, make and model</span>'+
+      '<div class="ymm"><select id="vYear" aria-label="Year"><option value="">Year</option>'+years.map(function(y){return '<option'+(y===ymm.year?" selected":"")+'>'+y+'</option>'}).join("")+'</select>'+
+      '<select id="vMake" aria-label="Make"><option value="">Make</option>'+MAKE_NAMES.map(function(m){return '<option'+(m===ymm.make?" selected":"")+'>'+esc(m)+'</option>'}).join("")+'<option value="other"'+(makeOther?" selected":"")+'>Other…</option></select></div>'+
+      '<input id="vMakeOther" maxlength="40" autocomplete="off" aria-label="Make" placeholder="Type the make" value="'+(makeOther?esc(ymm.make):"")+'"'+(makeOther?"":" hidden")+'>'+
+      '<select id="vModel" aria-label="Model"></select>'+
+      '<input id="vModelOther" maxlength="60" autocomplete="off" aria-label="Model" placeholder="Type the model" hidden>'+
+    '</div>'+
+    '<div class="field"><label for="vName">Vehicle name</label><input id="vName" maxlength="60" autocomplete="off" placeholder="e.g. 2019 Honda CR-V" value="'+(v?esc(v.name):"")+'">'+
+      '<p class="hint">Filled in from the year, make and model. Change it to anything you like.</p></div>'+
     '<div class="field"><label for="vPlate">Nickname or plate (optional)</label><input id="vPlate" maxlength="60" autocomplete="off" placeholder="e.g. Work truck" value="'+(v?esc(v.plate):"")+'"></div>'+
     '<div class="field"><label for="vMiles">Current mileage ('+unit()+')</label><input id="vMiles" inputmode="numeric" placeholder="e.g. 46,850" value="'+(v&&v.miles?num(v.miles):"")+'"></div>'+
     '<div class="field"><span class="lbl">Registration (optional)</span>'+
@@ -1590,6 +1679,47 @@ function vehicleSheet(v,focusId){
         :"This doesn't pass the VIN check, so a character may be mistyped.";
     }
     $("vVin").addEventListener("input",vinHint);vinHint();
+    // Year / make / model dropdowns fill in the name until the person types their own
+    var modelWanted=ymm.model,modelReq=0;
+    function getMake(){return $("vMake").value==="other"?cleanStr($("vMakeOther").value,40):$("vMake").value}
+    function getModel(){return $("vModel").hidden||$("vModel").value==="other"?cleanStr($("vModelOther").value,60):$("vModel").value}
+    function autoName(){return [$("vYear").value,getMake(),getModel()].filter(Boolean).join(" ")}
+    var nameOwn=!!(v&&v.name&&v.name!==autoName());
+    function syncName(){if(!nameOwn)$("vName").value=autoName().slice(0,60)}
+    function fillModels(extra){
+      var make=getMake(),known=CAR_MAKES[make]?makeModels(make):[],sel=$("vModel"),list=known.slice(),low={};
+      known.forEach(function(m){low[m.toLowerCase()]=1});
+      (extra||[]).forEach(function(m){if(!low[m.toLowerCase()]){low[m.toLowerCase()]=1;list.push(m)}});
+      if(modelWanted&&modelWanted!=="other"&&!low[modelWanted.toLowerCase()]&&CAR_MAKES[make]){$("vModelOther").value=modelWanted;modelWanted="other"}
+      list.sort(function(a,b){return a.localeCompare(b,undefined,{numeric:true})});
+      var listed=$("vMake").value&&$("vMake").value!=="other";
+      sel.hidden=!listed;
+      sel.innerHTML='<option value="">Model</option>'+list.map(function(m){return '<option'+(m===modelWanted?" selected":"")+'>'+esc(m)+'</option>'}).join("")+'<option value="other"'+(modelWanted==="other"?" selected":"")+'>Other…</option>';
+      if(!listed&&modelWanted&&modelWanted!=="other")$("vModelOther").value=modelWanted;
+      $("vModelOther").hidden=listed&&sel.value!=="other";
+    }
+    function refreshModels(){
+      fillModels();
+      var make=getMake(),year=$("vYear").value,req=++modelReq;
+      if(CAR_MAKES[make]&&year)onlineModels(make,year).then(function(list){
+        if(req!==modelReq||!list.length)return;
+        var cur=$("vModel").value;modelWanted=cur||modelWanted;fillModels(list);
+      });
+    }
+    $("vYear").onchange=function(){refreshModels();syncName()};
+    $("vMake").onchange=function(){
+      var other=this.value==="other";$("vMakeOther").hidden=!other;
+      modelWanted="";$("vModelOther").value="";refreshModels();syncName();
+      if(other)$("vMakeOther").focus();
+    };
+    $("vModel").onchange=function(){
+      modelWanted=this.value;var other=this.value==="other";$("vModelOther").hidden=!other;
+      if(other)$("vModelOther").focus();syncName();
+    };
+    $("vMakeOther").addEventListener("input",syncName);
+    $("vModelOther").addEventListener("input",syncName);
+    $("vName").addEventListener("input",function(){nameOwn=!!this.value.trim()&&this.value.trim()!==autoName()});
+    refreshModels();
     if(focusId)setTimeout(function(){var f=$(focusId);if(f){f.scrollIntoView({block:"center"});f.focus()}},60);
     function syncPresets(){var cur=readNum("vInt");Array.prototype.forEach.call(document.querySelectorAll("[data-int]"),function(b){b.setAttribute("aria-pressed",String(+b.getAttribute("data-int")===cur))})}
     $("vInt").addEventListener("input",syncPresets);
@@ -1600,7 +1730,8 @@ function vehicleSheet(v,focusId){
       e.preventDefault();
       var err=$("vErr"),name=$("vName").value.trim(),miles=readNum("vMiles"),iv=readNum("vInt"),mon=+$("vMon").value;
       function fail(m){err.textContent=m;err.hidden=false}
-      if(!name)return fail("Give the vehicle a name, like the year, make and model.");
+      if(!name)name=autoName();
+      if(!name)return fail("Choose the year, make and model, or type a name for the vehicle.");
       if(!(iv>=500&&iv<=50000))return fail("Enter how many "+unit()+" between oil changes, between 500 and 50,000.");
       if($("vMiles").value.trim()&&!(miles>=0&&miles<10000000))return fail("Enter the current mileage as a number.");
       var hasRot=isNew&&!!$("vRotDate");
@@ -1622,6 +1753,7 @@ function vehicleSheet(v,focusId){
       var newVin=vinClean($("vVin").value);
       if(newVin!==target.vin){target.vin=newVin;target.specs=null;target.recalls=null}
       target.reg={number:$("vRegNo").value.trim().toUpperCase().slice(0,20),state:$("vRegState").value.trim().slice(0,30),expires:regExp};
+      target.year=$("vYear").value;target.make=getMake();target.model=getModel();
       target.name=name.slice(0,60);target.plate=$("vPlate").value.trim().slice(0,60);
       target.intervalMiles=iv;target.intervalMonths=mon;target.look=$("vLook").value;
       if(hasRot&&parse(rotDate))target.services.push({id:uid(),type:"Tire rotation",date:rotDate,miles:rotMilesRaw?rotMiles:null,note:""});
