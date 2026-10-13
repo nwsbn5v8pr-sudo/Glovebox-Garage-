@@ -1,0 +1,1769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Glovebox">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Glovebox Garage</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,300..700&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,700;1,800&family=Manrope:wght@300;400;500;600;700&family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Racing+Sans+One&family=Righteous&family=Saira+Stencil+One&family=UnifrakturMaguntia&family=Yellowtail&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column like a phone app; a dashboard of vehicle cards, a detail screen, and bottom sheets for forms */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#18222e; --muted:#5d6b7a; --line:#d8dee5;
+  --brand:#1d2a3a; --accent:#f2b705; --accent-ink:#1d2a3a;
+  --ok:#1d7a4f; --ok-bg:#e1f2e8; --soon:#9a5b00; --soon-bg:#fff0cc; --late:#b42318; --late-bg:#fde5e2;
+  --track:#e3e8ee; --scrim:rgba(16,24,34,.45);
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#18212b; --ink:#e8edf2; --muted:#9aa8b6; --line:#2a3542;
+  --brand:#0b1117; --accent:#f5c22e; --accent-ink:#141a20;
+  --ok:#5fd39a; --ok-bg:#16352a; --soon:#f2c14e; --soon-bg:#3a2e10; --late:#ff8a7a; --late-bg:#41201c;
+  --track:#26313d; --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#18212b; --ink:#e8edf2; --muted:#9aa8b6; --line:#2a3542;
+  --brand:#0b1117; --accent:#f5c22e; --accent-ink:#141a20;
+  --ok:#5fd39a; --ok-bg:#16352a; --soon:#f2c14e; --soon-bg:#3a2e10; --late:#ff8a7a; --late-bg:#41201c;
+  --track:#26313d; --scrim:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);-webkit-text-size-adjust:100%;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+
+.bar{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 12px}
+.bar-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;min-height:40px}
+.bar h1{font:700 26px/1 var(--display);letter-spacing:.3px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.bar h1 small{display:block;font:500 12px/1.3 var(--body);letter-spacing:.6px;opacity:.75;text-transform:uppercase;margin-bottom:3px}
+.icon-btn{border:0;background:rgba(255,255,255,.12);color:#fff;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.icon-btn svg{width:22px;height:22px}
+/* the Settings button wears the app icon: an amber service light glowing on a black display, in every look */
+.bar #gearBtn{background:radial-gradient(circle at 50% 45%,#1c1f26,#07080b);color:#ffb21a;border:1px solid rgba(255,178,26,.35);border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.35);filter:none}
+.bar #gearBtn svg{width:26px;height:26px;filter:drop-shadow(0 0 3px rgba(255,178,26,.75))}
+
+main{max-width:560px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 110px);display:flex;flex-direction:column;gap:14px}
+
+.note{border-radius:14px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--soon-bg);color:var(--ink)}
+.note p{margin:0;flex:1;min-width:180px}
+.link-btn{border:0;background:none;padding:6px 0;font-weight:700;text-decoration:underline;color:inherit}
+
+.summary{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.chip b{color:var(--ink)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;text-align:left;width:100%}
+button.card{cursor:pointer}
+button.card:active{transform:scale(.99)}
+.card-top{display:flex;align-items:flex-start;gap:12px}
+.card-top>div{flex:1;min-width:0}
+.v-name{font:700 22px/1.1 var(--display);margin:0;letter-spacing:.2px;overflow-wrap:anywhere}
+.v-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.pill{flex:none;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.soon{background:var(--soon-bg);color:var(--soon)}
+.pill.late{background:var(--late-bg);color:var(--late)}
+.pill.none{background:var(--track);color:var(--muted)}
+
+.due{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.due-box{background:var(--bg);border-radius:12px;padding:10px 12px;min-width:0}
+.due-box .lbl{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+.due-box .val{font:700 24px/1.15 var(--display);font-variant-numeric:tabular-nums;margin-top:2px;overflow-wrap:anywhere}
+.due-box .val small{font:600 14px var(--body);color:var(--muted)}
+.due-box .left{font-size:13px;font-weight:600;margin-top:2px}
+.left.ok{color:var(--ok)}.left.soon{color:var(--soon)}.left.late{color:var(--late)}.left.none{color:var(--muted)}
+
+.meter{height:8px;border-radius:99px;background:var(--track);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--ok)}
+.meter.soon i{background:var(--soon)}.meter.late i{background:var(--late)}
+.meter-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px;gap:8px}
+
+.empty{text-align:center;padding:36px 20px;color:var(--muted)}
+.empty h2{font:700 26px var(--display);color:var(--ink);margin:0 0 6px}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:6;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:17px;padding:15px 24px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.22);display:flex;align-items:center;gap:8px;white-space:nowrap;max-width:calc(100% - 32px)}
+.fab svg{width:20px;height:20px}
+
+/* detail */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+.odo{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.odo-label{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+.odo-digits{display:inline-flex;gap:3px;font:700 26px/1 var(--display);font-variant-numeric:tabular-nums}
+.odo-digits span{background:var(--brand);color:#fff;border-radius:5px;min-width:22px;padding:6px 4px;text-align:center}
+.odo-unit{font-weight:600;color:var(--muted);font-size:14px}
+.row-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;font-weight:700;font-size:15px;text-align:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--late);border-color:var(--late-bg);background:var(--late-bg)}
+.btn.block{width:100%}
+.section-h{font:700 20px var(--display);text-transform:uppercase;letter-spacing:.5px;margin:6px 0 -4px;color:var(--muted)}
+.hist{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.hist-row{display:flex;gap:12px;align-items:center;padding:13px 16px;border-top:1px solid var(--line)}
+.hist-row:first-child{border-top:0}
+.hist-row>div{flex:1;min-width:0}
+.hist-date{font-weight:700}
+.hist-meta{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.hist-del{border:0;background:none;color:var(--muted);width:36px;height:36px;border-radius:10px;flex:none}
+.hist-del svg{width:18px;height:18px}
+.svc-h{font:700 21px/1.1 var(--display);text-transform:uppercase;letter-spacing:.3px;margin:0;display:flex;align-items:center;gap:8px}
+.svc-h svg{width:20px;height:20px;color:var(--muted)}
+.mini-list{display:flex;flex-direction:column;gap:6px}
+.mini{display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--bg);border-radius:10px;padding:9px 12px}
+.mini-l{font-weight:600;font-size:14px}
+.mini .left{font-size:14px;font-weight:700;margin:0;text-align:right}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--ink)}
+.check input{width:20px;height:20px;accent-color:var(--brand);flex:none}
+.rem-row{padding:13px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.rem-row:first-child{border-top:0}
+.rem-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rem-name{font-weight:700;flex:1;min-width:0;cursor:pointer}
+.rem-every{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.rem-every input,.rem-every select{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-size:16px;min-width:0}
+.rem-every input{width:96px}
+.switch{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:99px;background:var(--track);position:relative;cursor:pointer;margin:0;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.switch:checked{background:var(--ok)}
+.switch:checked::after{transform:translateX(20px)}
+@media (prefers-reduced-motion:reduce){.switch,.switch::after{transition:none}}
+.own{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);background:var(--track);border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:2px}
+.add-own{display:flex;gap:10px}
+.add-own input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 13px;font-size:16px}
+.add-own .btn{flex:none;padding-inline:20px}
+.note-btns{display:flex;gap:16px}
+.safe-val{flex:none;font-size:14px;white-space:nowrap}
+.safe-val.ok{color:var(--ok)}.safe-val.late{color:var(--late)}
+.paste summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);padding:6px 0}
+.paste-in{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.odo-row{display:flex;flex-wrap:nowrap;gap:12px;align-items:flex-start;justify-content:space-between}
+.odo-col{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.hero .odo-row .odo{gap:6px;flex-wrap:nowrap}
+.hero .odo-row .odo-digits span{font-size:21px;min-width:17px;padding:5px 2px}
+.hero .odo-row .odo-plain{font-size:38px}
+.hero .odo-row .odo-unit{font-size:13px}
+.reg{flex:none;align-items:flex-start}
+@media (max-width:350px){.odo-row{flex-wrap:wrap}}
+.odo-col .hint{margin:0}
+.reg{display:flex;flex-direction:column;gap:4px;min-width:0}
+.reg .left{font-size:12px;font-weight:700}
+.reg-exp{font-size:12px;color:var(--muted)}
+/* a license plate is a physical object, so it keeps plate colors in every look */
+.plate{display:inline-flex;flex-direction:column;align-items:center;background:#fbfbf7;color:#1c2333;border:2px solid #1c2333;border-radius:8px;
+  padding:3px 10px 5px;box-shadow:inset 0 0 0 2px #fbfbf7,inset 0 0 0 3px #9aa3b5;min-width:104px}
+.plate-state{font:700 9px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:#a3262a;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plate-no{font:700 22px/1.05 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.06em;font-style:normal}
+.reg-add{border:1.5px dashed var(--line);background:transparent;border-radius:10px;padding:10px 14px;font-weight:600;color:var(--muted)}
+.sub-lbl{font-size:13px;font-weight:700;color:var(--muted);margin-top:4px}
+.vin-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.vin{font:600 17px/1.3 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.06em;overflow-wrap:anywhere}
+.btn.small{padding:8px 14px;font-size:13px;flex:none;width:auto}
+.btn[disabled]{opacity:.55;cursor:default}
+a.btn{text-decoration:none;color:inherit;display:block}
+.specs{margin:0;display:grid;grid-template-columns:1fr;border-top:1px solid var(--line)}
+.specs div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.specs dt{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.specs dd{margin:0;min-width:0;overflow-wrap:anywhere;font-weight:600}
+.recalls{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.rc-h{margin:0;font-size:17px}
+.rc-list summary{cursor:pointer;font-weight:700;padding:4px 0}
+.rc-item{padding:10px 0;border-top:1px solid var(--line)}
+.rc-item p{margin:6px 0 0;font-size:14px;line-height:1.45}
+.rc-comp{font-weight:700}
+.warn-txt{color:var(--soon)}
+.tag{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--track);color:var(--muted)}
+.tag.oil{background:var(--soon-bg);color:var(--soon)}
+.tag svg{width:17px;height:17px}
+.last-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.last-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 13px;min-width:0}
+.last-box .lbl{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.last-date{font:700 19px/1.2 var(--display);margin-top:2px}
+.settings-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line)}
+.settings-row:first-child{border-top:0}
+.settings-row span{font-size:13px;color:var(--muted)}
+
+/* sheets */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 2px}
+.sheet h2{font:700 26px var(--display);margin:0;text-transform:uppercase;letter-spacing:.3px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:13px;font-weight:700;color:var(--muted)}
+.field input,.field textarea,.field select{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 13px;font-size:16px;width:100%;min-width:0}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two>*{min-width:0}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.preset{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 13px;font-weight:600;font-size:14px}
+.preset[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.preview{background:var(--bg);border-radius:14px;padding:12px 14px;font-size:15px}
+.preview b{font-family:var(--display);font-size:20px}
+.err{color:var(--late);font-size:14px;font-weight:600;margin:0}
+.sheet-btns{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+textarea{resize:vertical;min-height:70px}
+
+.field .check{font-size:15px;font-weight:500;color:var(--ink);cursor:pointer}
+.field .check input{width:20px;height:20px;padding:0;flex:none;border-radius:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 86px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px);text-align:center}
+
+/* ===== Classic '50s look: service-station signage, diner checkerboard, cherry red and turquoise, chrome trim.
+   Night version is a drive-in after dark: deep teal with neon trim. ===== */
+:root[data-style="classic"]{
+  --bg:#f3e6c8; --surface:#fffaf0; --ink:#2a211c; --muted:#6f5e4f; --line:#d9c7a3;
+  --brand:#c62b2b; --accent:#34b3a8; --accent-ink:#13302d;
+  --ok:#2e7d4f; --ok-bg:#dcefdc; --soon:#9a5b00; --soon-bg:#fbe3a7; --late:#b3261e; --late-bg:#f9d6cf;
+  --track:#eadbbb; --scrim:rgba(42,33,28,.5);
+  --display:"Righteous","Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --script:"Yellowtail","Brush Script MT",cursive;
+  --chrome:linear-gradient(180deg,#ffffff 0%,#c9ced3 45%,#8d959c 55%,#e6e9ec 100%);
+  --check-a:#2a211c; --check-b:#fffaf0; --hard:#2a211c;
+}
+@media (prefers-color-scheme:dark){:root[data-style="classic"]:not([data-theme="light"]){
+  --bg:#0f2427; --surface:#163236; --ink:#f6ead2; --muted:#a9c4bf; --line:#2b4c50;
+  --brand:#8f1d2c; --accent:#ff6f91; --accent-ink:#2a0c14;
+  --ok:#6be0b0; --ok-bg:#163d35; --soon:#ffd166; --soon-bg:#3d3214; --late:#ff8a7a; --late-bg:#47201c;
+  --track:#24454a; --scrim:rgba(0,0,0,.6);
+  --check-a:#0a1719; --check-b:#5ee0d2; --hard:#5ee0d2; color-scheme:dark}}
+:root[data-style="classic"][data-theme="dark"]{
+  --bg:#0f2427; --surface:#163236; --ink:#f6ead2; --muted:#a9c4bf; --line:#2b4c50;
+  --brand:#8f1d2c; --accent:#ff6f91; --accent-ink:#2a0c14;
+  --ok:#6be0b0; --ok-bg:#163d35; --soon:#ffd166; --soon-bg:#3d3214; --late:#ff8a7a; --late-bg:#47201c;
+  --track:#24454a; --scrim:rgba(0,0,0,.6);
+  --check-a:#0a1719; --check-b:#5ee0d2; --hard:#5ee0d2; color-scheme:dark}
+
+[data-style="classic"] .bar{padding-bottom:26px;background:repeating-conic-gradient(var(--check-a) 0 25%,var(--check-b) 0 50%) 0 100%/16px 16px repeat-x,var(--brand)}
+[data-style="classic"] .bar::after{content:"";position:absolute;left:0;right:0;bottom:16px;height:4px;background:var(--chrome)}
+[data-style="classic"] .bar h1{font:400 34px/1.05 var(--script);text-transform:none;letter-spacing:.5px;color:#fff6e2;text-shadow:2px 2px 0 rgba(0,0,0,.25);padding-bottom:2px}
+[data-style="classic"] .bar h1 small{font:400 12px/1.3 var(--display);letter-spacing:2px;opacity:.9;color:#fff6e2}
+[data-style="classic"] .icon-btn{background:var(--chrome);color:#2a211c;border:1px solid rgba(0,0,0,.25);border-radius:50%}
+[data-style="classic"] .card,[data-style="classic"] .hero,[data-style="classic"] .hist,[data-style="classic"] .last-box{border:2px solid var(--hard);border-radius:14px;box-shadow:4px 4px 0 var(--accent)}
+[data-style="classic"] .v-name,[data-style="classic"] .svc-h,[data-style="classic"] .sheet h2,[data-style="classic"] .empty h2{font-family:var(--display);font-weight:400;text-transform:none;letter-spacing:.3px}
+[data-style="classic"] .section-h{font:400 22px var(--script);text-transform:none;letter-spacing:.3px;color:var(--brand)}
+[data-style="classic"][data-theme="dark"] .section-h{color:var(--accent)}
+@media (prefers-color-scheme:dark){[data-style="classic"]:not([data-theme="light"]) .section-h{color:var(--accent)}}
+[data-style="classic"] .due-box .val,[data-style="classic"] .last-date{font-family:var(--display);font-weight:400}
+[data-style="classic"] .pill{border:2px solid currentColor;font-family:var(--display);font-weight:400;letter-spacing:1px}
+[data-style="classic"] .odo-digits{padding:4px;border-radius:10px;background:var(--chrome);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+[data-style="classic"] .odo-digits span{background:#1d1714;color:#fff6e2;font-family:var(--display);font-weight:400;border-radius:4px;box-shadow:inset 0 -8px 10px rgba(255,255,255,.08),inset 0 8px 10px rgba(0,0,0,.5)}
+[data-style="classic"] .odo-digits span:last-child{background:#fff6e2;color:#c62b2b}
+[data-style="classic"] .btn{border:2px solid var(--hard);font-family:var(--display);font-weight:400;letter-spacing:.5px}
+[data-style="classic"] .btn.primary{box-shadow:3px 3px 0 var(--hard)}
+[data-style="classic"] .btn.primary:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--hard)}
+[data-style="classic"] .fab{background:var(--brand);color:#fff6e2;border:3px solid #fff6e2;outline:2px solid var(--hard);font-family:var(--display);font-weight:400;letter-spacing:.5px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+[data-style="classic"] .preset{border:2px solid var(--line);font-weight:600}
+[data-style="classic"] .preset[aria-pressed="true"]{background:var(--accent);border-color:var(--hard);color:var(--accent-ink)}
+[data-style="classic"] .meter{height:10px;border:2px solid var(--hard);background:var(--track)}
+[data-style="classic"] .chip{border:2px solid var(--line)}
+[data-style="classic"] .switch:checked{background:var(--accent)}
+[data-style="classic"] .tag{border-radius:50%}
+[data-style="classic"] .sheet{border-top:4px solid var(--brand)}
+[data-style="classic"] .note{border:2px dashed var(--hard)}
+/* look picker swatches */
+.looks{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.look{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:8px;text-align:left;font-weight:700;font-size:14px;color:var(--ink)}
+.look[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 3px var(--accent)}
+.look-sw{height:58px;border-radius:9px;position:relative;overflow:hidden}
+.look-sw.modern{background:radial-gradient(120% 140% at 50% 0%,#1c1f26,#07080b 70%)}
+.look-sw.modern::before{content:"118,400";position:absolute;left:12px;top:9px;font:300 22px/1 "Manrope",system-ui,sans-serif;color:#ffb21a;text-shadow:0 0 8px rgba(255,178,26,.7);letter-spacing:-.5px}
+.look-sw.modern::after{content:"";position:absolute;left:12px;right:12px;bottom:11px;height:3px;border-radius:2px;background:#ffb21a;box-shadow:0 0 8px rgba(255,178,26,.8)}
+.look-sw.classic{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#c62b2b 0 32px,#f3e6c8 32px)}
+.look-sw.classic::before{content:"Classic";position:absolute;left:10px;top:4px;font:400 20px/1 "Yellowtail",cursive;color:#fff6e2}
+.look-sw.classic::after{content:"";position:absolute;left:10px;bottom:7px;width:44%;height:9px;border-radius:9px;background:#34b3a8;border:2px solid #2a211c}
+
+/* ===== Lowrider: candy paint with metal flake, gold-leaf pinstripes, Old English lettering, tuck-and-roll upholstery.
+   Light is pearl white with candy blue; dark is black candy under streetlights. ===== */
+:root[data-style="lowrider"]{
+  --bg:#f1f1f4; --surface:#fdfdfd; --ink:#161a24; --muted:#5b6170; --line:#d9dbe3;
+  --brand:#0a3a8c; --brand2:#2a86e8; --accent:#1257b8; --accent-ink:#ffe38f; --gold:#b8901f; --gold2:#f1d277; --deep:#041a45;
+  --ok:#1e7a4c; --ok-bg:#dcf0e3; --soon:#94580a; --soon-bg:#fbe8bf; --late:#b0242c; --late-bg:#f9d9dc;
+  --track:#e3e3ea; --scrim:rgba(10,16,30,.5); --tuck:rgba(0,0,0,.045);
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --gothic:"UnifrakturMaguntia","Old English Text MT",serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="lowrider"]:not([data-theme="light"]){
+  --bg:#08090d; --surface:#121621; --ink:#eef2fa; --muted:#a6b0c4; --line:#262d3d;
+  --brand:#062a6b; --brand2:#1f74d6; --accent:#1d6fd6; --accent-ink:#fff0bf; --gold:#d9b247; --gold2:#ffe9a3; --deep:#020c22;
+  --ok:#6be0a6; --ok-bg:#15372a; --soon:#ffcf6b; --soon-bg:#3b2d12; --late:#ff8a8f; --late-bg:#46191f;
+  --track:#222a38; --scrim:rgba(0,0,0,.65); --tuck:rgba(255,255,255,.025); color-scheme:dark}}
+:root[data-style="lowrider"][data-theme="dark"]{
+  --bg:#08090d; --surface:#121621; --ink:#eef2fa; --muted:#a6b0c4; --line:#262d3d;
+  --brand:#062a6b; --brand2:#1f74d6; --accent:#1d6fd6; --accent-ink:#fff0bf; --gold:#d9b247; --gold2:#ffe9a3; --deep:#020c22;
+  --ok:#6be0a6; --ok-bg:#15372a; --soon:#ffcf6b; --soon-bg:#3b2d12; --late:#ff8a8f; --late-bg:#46191f;
+  --track:#222a38; --scrim:rgba(0,0,0,.65); --tuck:rgba(255,255,255,.025); color-scheme:dark}
+
+/* tuck-and-roll upholstery channels behind everything */
+[data-style="lowrider"] body{background:repeating-linear-gradient(90deg,var(--bg) 0 26px,var(--tuck) 26px 28px,var(--bg) 28px 30px),var(--bg)}
+/* candy paint with metal flake, gold pinstripe underneath */
+[data-style="lowrider"] .bar{
+  background:
+    radial-gradient(circle at 20% 30%,rgba(255,255,255,.35) 0 1px,transparent 1.5px) 0 0/7px 7px,
+    radial-gradient(circle at 70% 60%,rgba(255,215,120,.3) 0 1px,transparent 1.5px) 0 0/11px 11px,
+    linear-gradient(115deg,var(--brand) 0%,var(--brand2) 45%,var(--brand) 70%,var(--deep) 100%);
+  border-bottom:3px solid var(--gold);box-shadow:0 3px 0 var(--surface),0 5px 0 var(--gold)}
+[data-style="lowrider"] .bar h1{font:400 34px/1.05 var(--gothic);text-transform:none;letter-spacing:.5px;color:var(--gold2);text-shadow:0 2px 0 var(--deep),0 0 12px rgba(255,210,110,.35);padding-bottom:3px}
+[data-style="lowrider"] .bar h1 small{font:600 12px/1.3 var(--body);letter-spacing:3px;color:#fff;opacity:.85}
+[data-style="lowrider"] .icon-btn{background:radial-gradient(circle at 35% 30%,#fff 0,#d7d7dc 25%,#8d8f97 60%,#e8e8ec 100%);color:#2a1424;border:2px solid var(--gold);border-radius:50%}
+[data-style="lowrider"] main{padding-top:22px}
+/* gold-leaf double pinstripe on every panel */
+[data-style="lowrider"] .card,[data-style="lowrider"] .hero,[data-style="lowrider"] .hist,[data-style="lowrider"] .last-box{
+  border:2px solid var(--gold);border-radius:20px;box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px var(--gold2),0 8px 18px rgba(0,0,0,.16)}
+[data-style="lowrider"] .v-name{font:400 26px/1.1 var(--gothic);letter-spacing:.3px}
+[data-style="lowrider"] .svc-h,[data-style="lowrider"] .sheet h2,[data-style="lowrider"] .empty h2{font-family:var(--gothic);font-weight:400;text-transform:none;letter-spacing:.3px;font-size:26px}
+[data-style="lowrider"] .section-h{font:400 26px var(--gothic);text-transform:none;letter-spacing:.3px;color:var(--accent);margin-top:10px}
+[data-style="lowrider"] .svc-h svg{color:var(--gold)}
+[data-style="lowrider"] .pill{border:1.5px solid currentColor}
+/* candy buttons with a gloss streak and gold lettering */
+[data-style="lowrider"] .btn.primary,[data-style="lowrider"] .fab{
+  background:linear-gradient(180deg,rgba(255,255,255,.28) 0 38%,transparent 38%),linear-gradient(115deg,var(--accent),var(--brand2) 60%,var(--accent));
+  color:var(--accent-ink);border:2px solid var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+[data-style="lowrider"] .fab{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--gold),0 10px 24px rgba(0,0,0,.35)}
+[data-style="lowrider"] .btn{border-radius:999px}
+[data-style="lowrider"] .btn:not(.primary):not(.danger){border:2px solid var(--gold)}
+/* gold-and-black gauge */
+[data-style="lowrider"] .odo-digits{padding:4px;border-radius:10px;background:linear-gradient(180deg,var(--gold2),var(--gold) 50%,#7a5a10)}
+[data-style="lowrider"] .odo-digits span{background:#120a12;color:var(--gold2);box-shadow:inset 0 8px 10px rgba(0,0,0,.6)}
+[data-style="lowrider"][data-theme="light"] .odo-digits span,[data-style="lowrider"]:not([data-theme]) .odo-digits span{color:#ffe38f}
+[data-style="lowrider"] .meter{height:9px;border:1.5px solid var(--gold)}
+[data-style="lowrider"] .preset[aria-pressed="true"]{background:linear-gradient(115deg,var(--accent),var(--brand2));border-color:var(--gold);color:var(--accent-ink)}
+[data-style="lowrider"] .switch:checked{background:linear-gradient(115deg,var(--accent),var(--brand2))}
+[data-style="lowrider"] .switch::after{background:radial-gradient(circle at 35% 30%,#fff,#c9c9cf 60%,#8d8f97)}
+[data-style="lowrider"] .chip{border-color:var(--gold)}
+[data-style="lowrider"] .tag{border-radius:50%;border:1.5px solid var(--gold)}
+[data-style="lowrider"] .sheet{border-top:3px solid var(--gold);box-shadow:0 -3px 0 var(--surface),0 -5px 0 var(--gold)}
+[data-style="lowrider"] .note{border:1.5px solid var(--gold)}
+.look-sw.lowrider{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.4) 0 1px,transparent 1.5px) 0 0/6px 6px,linear-gradient(115deg,#0a3a8c,#2a86e8 50%,#062a6b);border:2px solid #d9b247}
+.look-sw.lowrider.red{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.4) 0 1px,transparent 1.5px) 0 0/6px 6px,linear-gradient(115deg,#8c0f1c,#e0283a 50%,#5e0812)}
+.look-sw.lowrider.rootbeer{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.4) 0 1px,transparent 1.5px) 0 0/6px 6px,linear-gradient(115deg,#4a2410,#a2531f 50%,#331607)}
+.look-sw.lowrider.green{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.4) 0 1px,transparent 1.5px) 0 0/6px 6px,linear-gradient(115deg,#0b5a37,#22b06a 50%,#06402a)}
+.look-sw.lowrider::before{content:"Lowrider";position:absolute;left:8px;top:8px;font:400 22px/1 "UnifrakturMaguntia",serif;color:#ffe38f;text-shadow:0 2px 0 #021030}
+.look-sw.lowrider::after{content:"";position:absolute;left:8px;right:8px;bottom:9px;height:2px;background:#d9b247;box-shadow:0 4px 0 #d9b247}
+
+/* candy green paint */
+:root[data-style="lowrider"][data-paint="green"]{--brand:#0b5a37;--brand2:#22b06a;--accent:#0f7a49;--deep:#032616}
+@media (prefers-color-scheme:dark){:root[data-style="lowrider"][data-paint="green"]:not([data-theme="light"]){--brand:#06402a;--brand2:#18a05e;--accent:#16975a;--deep:#011409}}
+:root[data-style="lowrider"][data-paint="green"][data-theme="dark"]{--brand:#06402a;--brand2:#18a05e;--accent:#16975a;--deep:#011409}
+/* candy apple red and root beer paints */
+:root[data-style="lowrider"][data-paint="red"]{--brand:#8c0f1c;--brand2:#e0283a;--accent:#b3172a;--deep:#3a0309}
+@media (prefers-color-scheme:dark){:root[data-style="lowrider"][data-paint="red"]:not([data-theme="light"]){--brand:#5e0812;--brand2:#c81e30;--accent:#c42034;--deep:#1f0205}}
+:root[data-style="lowrider"][data-paint="red"][data-theme="dark"]{--brand:#5e0812;--brand2:#c81e30;--accent:#c42034;--deep:#1f0205}
+:root[data-style="lowrider"][data-paint="rootbeer"]{--brand:#4a2410;--brand2:#a2531f;--accent:#7a3a16;--deep:#1e0c04}
+@media (prefers-color-scheme:dark){:root[data-style="lowrider"][data-paint="rootbeer"]:not([data-theme="light"]){--brand:#331607;--brand2:#8f4618;--accent:#9a4c1c;--deep:#120601}}
+:root[data-style="lowrider"][data-paint="rootbeer"][data-theme="dark"]{--brand:#331607;--brand2:#8f4618;--accent:#9a4c1c;--deep:#120601}
+.paints{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.paint{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--ink)}
+.paint[aria-pressed="true"]{border-color:var(--gold,var(--ink));box-shadow:0 0 0 3px var(--accent)}
+.paint i{width:26px;height:26px;border-radius:50%;flex:none;border:2px solid #d9b247;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55) 0 2px,transparent 3px),linear-gradient(135deg,var(--c1),var(--c2))}
+.paint.blue i{--c1:#0a3a8c;--c2:#2a86e8}.paint.green i{--c1:#0b5a37;--c2:#22b06a}.paint.red i{--c1:#8c0f1c;--c2:#e0283a}.paint.rootbeer i{--c1:#4a2410;--c2:#a2531f}
+
+/* ===== Glovebox (the default look): built from the app icon. A black instrument display for the header,
+   glowing amber accents and the icon's thin amber rules, big thin numerals like a digital dash readout.
+   Light keeps the black display over warm white panels; dark is the full night-time dashboard. ===== */
+.odo-plain{display:none}
+:root[data-style="modern"]{
+  --bg:#f2f1ee; --surface:#ffffff; --ink:#15171c; --muted:#5f6571; --line:#e3e1dc;
+  --brand:#0b0d12; --accent:#ffb21a; --accent-ink:#17120a; --amber-text:#a86400; --glow:rgba(255,178,26,.55);
+  --ok:#1d7f4c; --ok-bg:#e2f2e8; --soon:#a35c00; --soon-bg:#fff0d2; --late:#c62828; --late-bg:#fde3e1;
+  --track:#e6e3dd; --scrim:rgba(5,6,9,.5); --panel:#0b0d12; --panel-ink:#f3f1ec;
+  --display:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="modern"]:not([data-theme="light"]){
+  --bg:#07080b; --surface:#12151c; --ink:#f1f0ec; --muted:#9aa0ab; --line:#232833;
+  --brand:#000; --accent:#ffb21a; --accent-ink:#17120a; --amber-text:#ffc24d; --glow:rgba(255,178,26,.7);
+  --ok:#4fd68c; --ok-bg:#10281b; --soon:#ffc24d; --soon-bg:#2d220b; --late:#ff6b5e; --late-bg:#341311;
+  --track:#232833; --scrim:rgba(0,0,0,.65); --panel:#000; --panel-ink:#f3f1ec; color-scheme:dark}}
+:root[data-style="modern"][data-theme="dark"]{
+  --bg:#07080b; --surface:#12151c; --ink:#f1f0ec; --muted:#9aa0ab; --line:#232833;
+  --brand:#000; --accent:#ffb21a; --accent-ink:#17120a; --amber-text:#ffc24d; --glow:rgba(255,178,26,.7);
+  --ok:#4fd68c; --ok-bg:#10281b; --soon:#ffc24d; --soon-bg:#2d220b; --late:#ff6b5e; --late-bg:#341311;
+  --track:#232833; --scrim:rgba(0,0,0,.65); --panel:#000; --panel-ink:#f3f1ec; color-scheme:dark}
+
+[data-style="modern"] body{letter-spacing:-.005em}
+/* header: the black display, with the icon's glowing amber rule along the bottom */
+[data-style="modern"] .bar{background:radial-gradient(120% 140% at 50% 0%,#1a1d25 0%,var(--panel) 70%);color:var(--panel-ink);
+  border-bottom:0;box-shadow:inset 0 -3px 0 var(--accent),0 2px 10px var(--glow)}
+[data-style="modern"] .bar h1{font:700 22px/1.15 var(--display);text-transform:none;letter-spacing:-.02em;color:var(--panel-ink)}
+[data-style="modern"] .bar h1 small{font:700 10.5px/1.3 var(--body);letter-spacing:.18em;color:var(--accent);opacity:1;text-shadow:0 0 8px var(--glow)}
+[data-style="modern"] .icon-btn{background:#1b1f28;color:var(--panel-ink);border-radius:12px;border:1px solid #2c323e}
+[data-style="modern"] .card,[data-style="modern"] .hero,[data-style="modern"] .hist,[data-style="modern"] .last-box{border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+[data-style="modern"] .card{gap:14px}
+[data-style="modern"] .v-name{font:700 20px/1.2 var(--display);letter-spacing:-.02em}
+[data-style="modern"] .v-sub{font-size:13px}
+[data-style="modern"] .svc-h,[data-style="modern"] .sheet h2,[data-style="modern"] .empty h2{font-family:var(--display);font-weight:700;text-transform:none;letter-spacing:-.02em;font-size:20px}
+[data-style="modern"] .svc-h svg{width:18px;height:18px;color:var(--amber-text)}
+/* section labels: small caps after a short amber rule, like the lines on the icon */
+[data-style="modern"] .section-h{font:700 12px var(--display);text-transform:uppercase;letter-spacing:.16em;color:var(--muted);display:flex;align-items:center;gap:10px;margin:14px 0 -2px}
+[data-style="modern"] .section-h::before{content:"";width:22px;height:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 6px var(--glow)}
+/* status as a small glowing dot and word */
+[data-style="modern"] .pill{background:none!important;padding:0;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none;display:inline-flex;align-items:center;gap:6px}
+[data-style="modern"] .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+[data-style="modern"] .due-box{background:var(--bg);border-radius:12px}
+[data-style="modern"] .due-box .lbl,[data-style="modern"] .odo-label,[data-style="modern"] .last-box .lbl{font-size:11px;font-weight:700;letter-spacing:.12em}
+[data-style="modern"] .due-box .val{font:300 26px/1.15 var(--display);letter-spacing:-.03em}
+[data-style="modern"] .due-box .val small{font-weight:600;font-size:13px;letter-spacing:0}
+[data-style="modern"] .last-date{font:600 17px/1.25 var(--display);letter-spacing:-.01em}
+/* odometer: amber digits glowing on a small black display */
+[data-style="modern"] .odo-digits{display:none}
+[data-style="modern"] .odo{background:var(--panel);border-radius:12px;padding:8px 14px;align-self:flex-start;box-shadow:inset 0 0 0 1px #2a2f3a}
+[data-style="modern"] .odo-plain{display:inline;font:300 44px/1 var(--display);letter-spacing:-.02em;font-variant-numeric:proportional-nums;color:var(--accent);text-shadow:0 0 10px var(--glow)}
+[data-style="modern"] .odo-unit{font-size:14px;font-weight:600;align-self:flex-end;margin-bottom:6px;color:#c9ccd3}
+[data-style="modern"] .meter{height:4px;background:var(--track)}
+[data-style="modern"] .meter i{box-shadow:0 0 6px currentColor}
+[data-style="modern"] .mini{background:transparent;border-top:1px solid var(--line);border-radius:0;padding:10px 0}
+[data-style="modern"] .mini:first-child{border-top:0}
+[data-style="modern"] .mini-list{gap:0}
+/* amber controls */
+[data-style="modern"] .btn{border-radius:10px;border:0;background:var(--bg);font-weight:700;font-size:14px;padding:12px 14px}
+[data-style="modern"] .hero .btn:not(.primary){background:var(--bg);box-shadow:inset 0 0 0 1px var(--line)}
+[data-style="modern"] .btn.primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 10px var(--glow)}
+[data-style="modern"] .btn.danger{background:var(--late-bg);color:var(--late)}
+[data-style="modern"] .fab{background:var(--accent);color:var(--accent-ink);border-radius:12px;font-size:15px;font-weight:800;padding:14px 22px;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 8px 24px var(--glow)}
+[data-style="modern"] .chip{background:var(--surface);border:1px solid var(--line)}
+[data-style="modern"] .preset{border:1px solid var(--line);background:var(--surface);border-radius:8px}
+[data-style="modern"] .preset[aria-pressed="true"]{background:var(--panel);border-color:var(--panel);color:var(--accent)}
+[data-style="modern"] .switch:checked{background:var(--accent)}
+[data-style="modern"] .note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px}
+[data-style="modern"] .tag{border-radius:50%;background:var(--bg)}
+[data-style="modern"] .tag.oil{background:var(--panel);color:var(--accent)}
+[data-style="modern"] .sheet{border-radius:20px 20px 0 0;border-top:3px solid var(--accent)}
+[data-style="modern"] .field input,[data-style="modern"] .field textarea,[data-style="modern"] .field select,[data-style="modern"] .rem-every input,[data-style="modern"] .rem-every select,[data-style="modern"] .add-own input{border-radius:10px;background:var(--bg);border-color:var(--line)}
+[data-style="modern"] .look,[data-style="modern"] .paint{border-color:var(--line)}
+[data-style="modern"] .look[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--glow)}
+[data-style="modern"] .rc-list summary{color:var(--amber-text)}
+
+/* ===== JDM: Japanese tuner culture. Day is a white race livery with bold red and black stripes;
+   night is a Tokyo highway run in deep blue with red and cyan light. Sharp cut corners,
+   slanted sticker badges, an LED shift-light bar and a glowing digital odometer. ===== */
+:root[data-style="jdm"]{
+  --bg:#eceef1; --surface:#ffffff; --ink:#0d0f14; --muted:#5a606b; --line:#d5d9e0;
+  --brand:#0d0f14; --accent:#e60012; --accent-ink:#ffffff; --cyan:#0090c8;
+  --ok:#0e8a4a; --ok-bg:#dff3e7; --soon:#b56a00; --soon-bg:#fff0cf; --late:#d4001a; --late-bg:#ffe0e3;
+  --track:#dfe3e9; --scrim:rgba(5,8,15,.55); --speed:rgba(13,15,20,.035);
+  --display:"Chakra Petch","Arial Narrow",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="jdm"]:not([data-theme="light"]){
+  --bg:#070912; --surface:#0f1424; --ink:#eef2ff; --muted:#93a0bd; --line:#1f2944;
+  --brand:#04060d; --accent:#ff2d4a; --accent-ink:#ffffff; --cyan:#2fd6ff;
+  --ok:#3df59a; --ok-bg:#0d2a1f; --soon:#ffc533; --soon-bg:#2c230b; --late:#ff4d63; --late-bg:#3a0f17;
+  --track:#1a2238; --scrim:rgba(0,0,0,.65); --speed:rgba(47,214,255,.05); color-scheme:dark}}
+:root[data-style="jdm"][data-theme="dark"]{
+  --bg:#070912; --surface:#0f1424; --ink:#eef2ff; --muted:#93a0bd; --line:#1f2944;
+  --brand:#04060d; --accent:#ff2d4a; --accent-ink:#ffffff; --cyan:#2fd6ff;
+  --ok:#3df59a; --ok-bg:#0d2a1f; --soon:#ffc533; --soon-bg:#2c230b; --late:#ff4d63; --late-bg:#3a0f17;
+  --track:#1a2238; --scrim:rgba(0,0,0,.65); --speed:rgba(47,214,255,.05); color-scheme:dark}
+
+/* speed lines */
+[data-style="jdm"] body{background:repeating-linear-gradient(-62deg,transparent 0 22px,var(--speed) 22px 24px),var(--bg)}
+/* race livery header: black with red and white stripes cutting across the right side */
+[data-style="jdm"] .bar{background:#0d0f14;color:#fff;border-bottom:3px solid var(--accent);overflow:hidden}
+[data-style="jdm"] .bar::before{content:"";position:absolute;top:0;bottom:0;right:-10px;width:170px;pointer-events:none;
+  background:linear-gradient(118deg,transparent 0 34%,var(--accent) 34% 52%,#fff 52% 56%,var(--accent) 56% 64%,transparent 64% 70%,#3a3f4a 70% 73%,transparent 73%)}
+[data-style="jdm"] .bar-in{position:relative;z-index:1}
+[data-style="jdm"] .bar h1{font:italic 700 26px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em;text-shadow:2px 2px 0 var(--accent)}
+[data-style="jdm"] .bar h1 small{font:600 11px/1.3 var(--display);letter-spacing:.18em;color:#fff;opacity:.85;text-shadow:none}
+[data-style="jdm"] .bar h1 small::after{content:" / 整備記録";letter-spacing:.08em;color:var(--accent);font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;font-weight:700}
+[data-style="jdm"] .icon-btn{background:#1d212b;color:#fff;border-radius:4px;border:1px solid #3a404d}
+/* cut-corner panels with a red edge */
+[data-style="jdm"] .card,[data-style="jdm"] .hero,[data-style="jdm"] .hist,[data-style="jdm"] .last-box{
+  border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:2px;
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+[data-style="jdm"] .v-name,[data-style="jdm"] .svc-h,[data-style="jdm"] .sheet h2,[data-style="jdm"] .empty h2{font-family:var(--display);font-style:italic;font-weight:700;text-transform:uppercase;letter-spacing:.01em}
+[data-style="jdm"] .v-name{font-size:22px}
+[data-style="jdm"] .svc-h svg{color:var(--accent)}
+[data-style="jdm"] .section-h{font:italic 700 18px var(--display);text-transform:uppercase;letter-spacing:.08em;color:var(--ink);display:flex;align-items:center;gap:10px}
+[data-style="jdm"] .section-h::before{content:"";width:22px;height:10px;background:var(--accent);transform:skewX(-30deg)}
+/* slanted sticker badges */
+[data-style="jdm"] .pill{border-radius:2px;transform:skewX(-12deg);font-family:var(--display);font-weight:700;letter-spacing:.08em;border:1.5px solid currentColor}
+[data-style="jdm"] .due-box .val,[data-style="jdm"] .last-date{font-family:var(--display);font-weight:700;font-style:italic}
+[data-style="jdm"] .due-box{border-radius:2px;border-top:2px solid var(--cyan)}
+/* glowing digital odometer */
+[data-style="jdm"] .odo-digits{gap:2px;padding:6px 8px;background:#05070c;border-radius:3px;border:1px solid #2a3040;transform:skewX(-8deg)}
+[data-style="jdm"] .odo-digits span{background:transparent;color:#ff3b4f;font:italic 700 34px/1 var(--display);min-width:20px;padding:2px 1px;text-shadow:0 0 6px rgba(255,40,70,.9),0 0 16px rgba(255,40,70,.5)}
+/* LED shift-light bar */
+[data-style="jdm"] .meter{height:12px;border-radius:2px;background:repeating-linear-gradient(90deg,var(--track) 0 9px,transparent 9px 12px)}
+[data-style="jdm"] .meter i{border-radius:0;-webkit-mask:repeating-linear-gradient(90deg,#000 0 9px,transparent 9px 12px);mask:repeating-linear-gradient(90deg,#000 0 9px,transparent 9px 12px)}
+[data-style="jdm"] .meter.ok i{background:linear-gradient(90deg,var(--ok),var(--ok))}
+[data-style="jdm"] .meter.soon i{background:linear-gradient(90deg,var(--ok) 0 40%,var(--soon) 70%)}
+[data-style="jdm"] .meter.late i{background:linear-gradient(90deg,var(--ok) 0 35%,var(--soon) 60%,var(--late) 85%)}
+/* parallelogram buttons */
+[data-style="jdm"] .btn{border-radius:0;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);border:0;background:var(--track)}
+[data-style="jdm"] .btn.primary{background:var(--accent);color:var(--accent-ink)}
+[data-style="jdm"] .btn.danger{background:var(--late-bg);color:var(--late)}
+[data-style="jdm"] .fab{border-radius:0;clip-path:polygon(16px 0,100% 0,calc(100% - 16px) 100%,0 100%);background:var(--accent);color:#fff;font-family:var(--display);font-style:italic;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:16px 34px;box-shadow:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+[data-style="jdm"] .chip{border-radius:2px;transform:skewX(-10deg);font-family:var(--display)}
+[data-style="jdm"] .preset{border-radius:2px;font-family:var(--display);font-weight:600}
+[data-style="jdm"] .preset[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-style="jdm"] .switch{border-radius:3px}
+[data-style="jdm"] .switch::after{border-radius:2px}
+[data-style="jdm"] .switch:checked{background:var(--accent)}
+[data-style="jdm"] .mini{border-radius:2px;border-left:3px solid var(--cyan)}
+[data-style="jdm"] .note{border-radius:2px;border-left:4px solid var(--accent)}
+[data-style="jdm"] .tag{border-radius:2px}
+[data-style="jdm"] .sheet{border-radius:0;border-top:4px solid var(--accent)}
+[data-style="jdm"] .field input,[data-style="jdm"] .field textarea,[data-style="jdm"] .field select,[data-style="jdm"] .rem-every input,[data-style="jdm"] .rem-every select,[data-style="jdm"] .add-own input{border-radius:2px}
+.look-sw.jdm{background:linear-gradient(118deg,#0d0f14 0 62%,#e60012 62% 76%,#fff 76% 80%,#e60012 80% 87%,#0d0f14 87%)}
+.look-sw.jdm::before{content:"JDM";position:absolute;left:10px;top:8px;font:italic 700 24px/1 "Chakra Petch",sans-serif;color:#fff;text-shadow:2px 2px 0 #e60012}
+.look-sw.jdm::after{content:"";position:absolute;left:10px;bottom:9px;width:48%;height:8px;background:repeating-linear-gradient(90deg,#20d27a 0 6px,transparent 6px 8px)}
+
+/* ===== Off Road: trail gear. Sand and olive drab over a topographic map, safety-orange accents,
+   stencil lettering, riveted steel panels, hazard tape and a tire-tread edge.
+   Dark is a night trail under an orange light bar. ===== */
+:root[data-style="offroad"]{
+  --bg:#e8dfca; --surface:#f7f2e6; --ink:#20241a; --muted:#5f604c; --line:#c9bc9c;
+  --brand:#3d4728; --accent:#e8650a; --accent-ink:#1b1206; --steel:#8b8a7a;
+  --ok:#2f7a35; --ok-bg:#dcecd5; --soon:#a35a00; --soon-bg:#f8e2b4; --late:#b42a1a; --late-bg:#f6d6cd;
+  --track:#ddd1b4; --scrim:rgba(20,22,14,.55); --topo:rgba(61,71,40,.09); --rivet:#a59d84;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --stencil:"Saira Stencil One","Arial Black",Impact,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="offroad"]:not([data-theme="light"]){
+  --bg:#11130d; --surface:#1b1f15; --ink:#ece4cf; --muted:#a8a58c; --line:#33392a;
+  --brand:#262d1a; --accent:#ff7a1a; --accent-ink:#1b0e02; --steel:#5d5e50;
+  --ok:#7fd66a; --ok-bg:#1d2e17; --soon:#ffb547; --soon-bg:#33270f; --late:#ff6f5a; --late-bg:#3a1912;
+  --track:#2b3122; --scrim:rgba(0,0,0,.65); --topo:rgba(236,228,207,.05); --rivet:#4e5242; color-scheme:dark}}
+:root[data-style="offroad"][data-theme="dark"]{
+  --bg:#11130d; --surface:#1b1f15; --ink:#ece4cf; --muted:#a8a58c; --line:#33392a;
+  --brand:#262d1a; --accent:#ff7a1a; --accent-ink:#1b0e02; --steel:#5d5e50;
+  --ok:#7fd66a; --ok-bg:#1d2e17; --soon:#ffb547; --soon-bg:#33270f; --late:#ff6f5a; --late-bg:#3a1912;
+  --track:#2b3122; --scrim:rgba(0,0,0,.65); --topo:rgba(236,228,207,.05); --rivet:#4e5242; color-scheme:dark}
+
+/* topographic contour lines */
+[data-style="offroad"] body{background:
+  repeating-radial-gradient(ellipse 120% 90% at 18% 22%,transparent 0 26px,var(--topo) 26px 28px),
+  repeating-radial-gradient(ellipse 100% 120% at 92% 78%,transparent 0 30px,var(--topo) 30px 32px),var(--bg)}
+/* olive steel header with a tire-tread edge */
+[data-style="offroad"] .bar{padding-bottom:26px;color:var(--bg);background:
+  repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.05) 6px 7px),
+  repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.08) 6px 7px),var(--brand)}
+[data-style="offroad"] .bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:
+  linear-gradient(135deg,#191b13 25%,transparent 25%) 0 0/20px 14px,
+  linear-gradient(225deg,#191b13 25%,transparent 25%) 0 0/20px 14px,#2b2e22}
+[data-style="offroad"] .bar h1{font:400 25px/1.1 var(--stencil);text-transform:uppercase;letter-spacing:0;color:#efe6cf}
+[data-style="offroad"] .bar h1 small{font:700 11px/1.3 var(--body);letter-spacing:.2em;color:var(--accent);opacity:1}
+[data-style="offroad"] .icon-btn{background:#2b2e22;color:#efe6cf;border-radius:8px;border:2px solid #5d5e50}
+/* riveted panels */
+[data-style="offroad"] .card,[data-style="offroad"] .hero,[data-style="offroad"] .hist,[data-style="offroad"] .last-box{
+  border:2px solid var(--line);border-radius:8px;background:
+  radial-gradient(circle at 9px 9px,var(--rivet) 0 2.5px,transparent 3.5px),
+  radial-gradient(circle at calc(100% - 9px) 9px,var(--rivet) 0 2.5px,transparent 3.5px),
+  radial-gradient(circle at 9px calc(100% - 9px),var(--rivet) 0 2.5px,transparent 3.5px),
+  radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),var(--rivet) 0 2.5px,transparent 3.5px),var(--surface)}
+[data-style="offroad"] .last-box{background:var(--surface)}
+[data-style="offroad"] .v-name,[data-style="offroad"] .svc-h,[data-style="offroad"] .sheet h2,[data-style="offroad"] .empty h2{font-family:var(--stencil);font-weight:400;text-transform:uppercase;letter-spacing:.02em}
+[data-style="offroad"] .v-name{font-size:22px}
+[data-style="offroad"] .svc-h svg{color:var(--accent)}
+/* hazard-tape section labels */
+[data-style="offroad"] .section-h{font:400 20px var(--stencil);text-transform:uppercase;letter-spacing:.04em;color:var(--ink);display:flex;align-items:center;gap:10px}
+[data-style="offroad"] .section-h::before{content:"";width:34px;height:12px;border-radius:2px;background:repeating-linear-gradient(-45deg,var(--accent) 0 6px,#1b1d14 6px 12px)}
+[data-style="offroad"] .pill{border-radius:4px;border:2px solid currentColor;font-family:var(--display);font-weight:700;letter-spacing:.1em}
+[data-style="offroad"] .due-box{border-radius:6px;border:1px dashed var(--line)}
+[data-style="offroad"] .due-box .val{font-weight:700}
+/* mechanical odometer in an olive bezel */
+[data-style="offroad"] .odo-digits{padding:5px;border-radius:6px;background:var(--brand);border:2px solid #1b1d14}
+[data-style="offroad"] .odo-digits span{background:#16180f;color:#efe6cf;border-radius:2px;box-shadow:inset 0 -2px 0 rgba(255,255,255,.06)}
+[data-style="offroad"] .odo-digits span:last-child{color:var(--accent)}
+/* chunky gear */
+[data-style="offroad"] .meter{height:10px;border-radius:3px;border:2px solid #1b1d14}
+[data-style="offroad"] .meter i{border-radius:0}
+[data-style="offroad"] .meter.late i{background:repeating-linear-gradient(-45deg,var(--late) 0 8px,#1b1d14 8px 14px)}
+[data-style="offroad"] .btn{border-radius:8px;border:2px solid var(--line);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:14px}
+[data-style="offroad"] .btn.primary{background:var(--accent);color:var(--accent-ink);border:2px solid #1b1d14;box-shadow:0 4px 0 #1b1d14}
+[data-style="offroad"] .btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #1b1d14}
+[data-style="offroad"] .fab{background:var(--accent);color:var(--accent-ink);border-radius:10px;border:3px solid #1b1d14;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 5px 0 #1b1d14,0 12px 24px rgba(0,0,0,.25)}
+[data-style="offroad"] .chip{border-radius:6px;border:2px solid var(--line)}
+[data-style="offroad"] .preset{border-radius:6px;border:2px solid var(--line);font-weight:700}
+[data-style="offroad"] .preset[aria-pressed="true"]{background:var(--brand);border-color:#1b1d14;color:#efe6cf}
+[data-style="offroad"] .switch{border-radius:6px}
+[data-style="offroad"] .switch::after{border-radius:4px}
+[data-style="offroad"] .switch:checked{background:var(--accent)}
+[data-style="offroad"] .mini{border-radius:6px}
+[data-style="offroad"] .note{border-radius:8px;border:2px solid var(--accent)}
+[data-style="offroad"] .tag{border-radius:6px}
+[data-style="offroad"] .sheet{border-top:5px solid var(--accent)}
+[data-style="offroad"] .field input,[data-style="offroad"] .field textarea,[data-style="offroad"] .field select,[data-style="offroad"] .rem-every input,[data-style="offroad"] .rem-every select,[data-style="offroad"] .add-own input{border-radius:6px;border-width:2px}
+.look-sw.offroad{background:repeating-radial-gradient(ellipse at 20% 30%,transparent 0 7px,rgba(239,230,207,.18) 7px 8px),#3d4728}
+.look-sw.offroad::before{content:"OFF ROAD";position:absolute;left:10px;top:8px;font:400 19px/1 "Saira Stencil One",Impact,sans-serif;color:#efe6cf}
+.look-sw.offroad::after{content:"";position:absolute;left:10px;bottom:9px;width:48%;height:10px;border-radius:2px;background:repeating-linear-gradient(-45deg,#e8650a 0 5px,#1b1d14 5px 10px)}
+.look:last-child:nth-child(odd){grid-column:span 2}
+.look-tag{white-space:nowrap}
+
+/* ===== Luxury: German sports-car interior. Chalk white or jet black, wide spaced lettering,
+   hairline rules, contrast leather stitching, a houndstooth seat-fabric band, a watch-style
+   odometer window and instrument needles in signal red. ===== */
+:root[data-style="luxury"]{
+  --bg:#e8e6e1; --surface:#f8f7f4; --ink:#0d0d10; --muted:#6a6a70; --line:#d6d3cc;
+  --brand:#0d0d10; --accent:#0d0d10; --accent-ink:#f8f7f4; --needle:#d5001c; --stitch:#9c5a2c; --silver:#b9bcc2;
+  --ok:#1f6e46; --ok-bg:#e1eee6; --soon:#9a5e00; --soon-bg:#f6ead2; --late:#c4001a; --late-bg:#f8dfe2;
+  --track:#dcd9d2; --scrim:rgba(13,13,16,.5);
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="luxury"]:not([data-theme="light"]){
+  --bg:#0a0a0c; --surface:#151518; --ink:#f1f0ec; --muted:#97979e; --line:#2a2a2f;
+  --brand:#000; --accent:#f1f0ec; --accent-ink:#0a0a0c; --needle:#ff2a3d; --stitch:#b8723f; --silver:#7d8088;
+  --ok:#5fd398; --ok-bg:#132a1f; --soon:#e6b155; --soon-bg:#2b2311; --late:#ff5a66; --late-bg:#33141a;
+  --track:#26262b; --scrim:rgba(0,0,0,.7); color-scheme:dark}}
+:root[data-style="luxury"][data-theme="dark"]{
+  --bg:#0a0a0c; --surface:#151518; --ink:#f1f0ec; --muted:#97979e; --line:#2a2a2f;
+  --brand:#000; --accent:#f1f0ec; --accent-ink:#0a0a0c; --needle:#ff2a3d; --stitch:#b8723f; --silver:#7d8088;
+  --ok:#5fd398; --ok-bg:#132a1f; --soon:#e6b155; --soon-bg:#2b2311; --late:#ff5a66; --late-bg:#33141a;
+  --track:#26262b; --scrim:rgba(0,0,0,.7); color-scheme:dark}
+
+[data-style="luxury"] body{font-stretch:100%}
+/* black header with a houndstooth band */
+[data-style="luxury"] .bar{background:#0a0a0c;color:#f1f0ec;padding-bottom:22px}
+[data-style="luxury"] .bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;opacity:.9;background:
+  linear-gradient(45deg,transparent 0 40%,#0a0a0c 40% 60%,transparent 60%) 0 0/8px 8px,
+  repeating-conic-gradient(#0a0a0c 0 25%,#e8e6e1 0 50%) 0 0/8px 8px}
+[data-style="luxury"] .bar h1{font:500 17px/1.25 var(--display);font-stretch:125%;text-transform:uppercase;letter-spacing:.2em}
+[data-style="luxury"] .bar h1 small{font:400 10px/1.4 var(--body);letter-spacing:.3em;color:#9a9aa0;opacity:1;margin-bottom:5px}
+[data-style="luxury"] .icon-btn{background:transparent;color:#f1f0ec;border:1px solid #3a3a40;border-radius:50%}
+/* stitched leather panels */
+[data-style="luxury"] .card,[data-style="luxury"] .hero,[data-style="luxury"] .hist,[data-style="luxury"] .last-box{
+  border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+[data-style="luxury"] .card,[data-style="luxury"] .hero{outline:1px dashed var(--stitch);outline-offset:-7px;padding:20px}
+[data-style="luxury"] .v-name,[data-style="luxury"] .svc-h,[data-style="luxury"] .sheet h2,[data-style="luxury"] .empty h2{font-family:var(--display);font-stretch:125%;font-weight:500;text-transform:uppercase;letter-spacing:.12em}
+[data-style="luxury"] .v-name{font-size:16px;line-height:1.35;letter-spacing:.06em;overflow-wrap:normal}
+[data-style="luxury"] .svc-h{font-size:15px}
+[data-style="luxury"] .svc-h svg{color:var(--muted)}
+[data-style="luxury"] .v-sub{letter-spacing:.04em}
+/* section label with a hairline rule */
+[data-style="luxury"] .section-h{font:500 12px var(--display);font-stretch:125%;text-transform:uppercase;letter-spacing:.3em;color:var(--muted);display:flex;align-items:center;gap:14px;margin-top:14px}
+[data-style="luxury"] .section-h::after{content:"";flex:1;height:1px;background:var(--line)}
+[data-style="luxury"] .pill{background:none!important;border:1px solid currentColor;border-radius:2px;font:500 10px/1 var(--display);font-stretch:125%;letter-spacing:.2em;padding:6px 9px}
+[data-style="luxury"] .due-box{background:transparent;border-top:1px solid var(--line);border-radius:0;padding:12px 2px 2px}
+[data-style="luxury"] .due-box .lbl,[data-style="luxury"] .odo-label,[data-style="luxury"] .last-box .lbl{font-size:10px;letter-spacing:.28em;font-stretch:125%}
+[data-style="luxury"] .due-box .val{font:300 26px/1.15 var(--display);font-stretch:100%;letter-spacing:-.01em}
+[data-style="luxury"] .last-date{font:400 16px/1.3 var(--display)}
+/* watch-style date window */
+[data-style="luxury"] .odo-digits{gap:0;padding:3px;border-radius:4px;background:linear-gradient(180deg,#f4f5f7,var(--silver) 50%,#5d6068);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+[data-style="luxury"] .odo-digits span{background:#0a0a0c;color:#f1f0ec;border-radius:0;font:400 26px/1 var(--display);font-stretch:100%;min-width:22px;padding:8px 3px;border-right:1px solid #26262b}
+[data-style="luxury"] .odo-digits span:first-child{border-radius:2px 0 0 2px}
+[data-style="luxury"] .odo-digits span:last-child{border-radius:0 2px 2px 0;border-right:0}
+/* hairline gauge with a red needle */
+[data-style="luxury"] .meter{height:2px;overflow:visible;background:var(--track);position:relative;margin-top:8px}
+[data-style="luxury"] .meter i{background:var(--ink)!important;position:relative}
+[data-style="luxury"] .meter i::after{content:"";position:absolute;right:-1px;top:-6px;width:2px;height:14px;background:var(--needle);border-radius:1px}
+[data-style="luxury"] .mini{background:transparent;border-bottom:1px solid var(--line);border-radius:0;padding:10px 0}
+[data-style="luxury"] .mini:last-child{border-bottom:0}
+[data-style="luxury"] .mini-list{gap:0}
+[data-style="luxury"] .mini-l{letter-spacing:.03em}
+/* restrained controls */
+[data-style="luxury"] .btn{border-radius:3px;border:1px solid var(--ink);background:transparent;font:500 12px/1 var(--display);font-stretch:125%;text-transform:uppercase;letter-spacing:.22em;padding:16px 14px}
+[data-style="luxury"] .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+[data-style="luxury"] .btn.danger{border-color:var(--late);color:var(--late);background:transparent}
+[data-style="luxury"] .fab{background:var(--accent);color:var(--accent-ink);border-radius:3px;font:500 12px/1 var(--display);font-stretch:125%;text-transform:uppercase;letter-spacing:.22em;padding:18px 26px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+[data-style="luxury"] .chip{border-radius:2px;background:transparent;border:1px solid var(--line);letter-spacing:.04em}
+[data-style="luxury"] .preset{border-radius:3px;border:1px solid var(--line);background:transparent;letter-spacing:.06em}
+[data-style="luxury"] .preset[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+[data-style="luxury"] .switch:checked{background:var(--ink)}
+[data-style="luxury"] .switch:checked::after{background:var(--surface)}
+[data-style="luxury"] .note{border-radius:4px;background:var(--surface);border:1px solid var(--line)}
+[data-style="luxury"] .tag{border-radius:50%;background:transparent;border:1px solid var(--line)}
+[data-style="luxury"] .sheet{border-radius:10px 10px 0 0}
+[data-style="luxury"] .field input,[data-style="luxury"] .field textarea,[data-style="luxury"] .field select,[data-style="luxury"] .rem-every input,[data-style="luxury"] .rem-every select,[data-style="luxury"] .add-own input{border-radius:3px;background:transparent}
+.look-sw.luxury{background:#0a0a0c}
+.look-sw.luxury::before{content:"LUXURY";position:absolute;left:10px;top:12px;font:500 13px/1 "Archivo",Arial,sans-serif;font-stretch:125%;letter-spacing:.32em;color:#f1f0ec}
+.look-sw.luxury::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:repeating-conic-gradient(#0a0a0c 0 25%,#e8e6e1 0 50%) 0 0/6px 6px;border-top:2px solid #d5001c}
+
+/* ===== '60s Muscle: Detroit pony cars. Factory paint with twin racing stripes, a bumblebee band
+   under the header, italic racing lettering, an engine-turned aluminum dash for the odometer and
+   a tachometer bar with a redline. Light is garage daylight; dark is black vinyl. ===== */
+:root[data-style="muscle"]{
+  --bg:#ebe5d7; --surface:#fbf8f0; --ink:#1b1712; --muted:#675d50; --line:#d6cbb6;
+  --paint:#e8590c; --paint2:#ff7a2e; --stripe:#141210; --accent:#e8590c; --accent-ink:#141210; --brand:#e8590c;
+  --ok:#2b7a3d; --ok-bg:#dcefd9; --soon:#a35400; --soon-bg:#f9e3b8; --late:#c0261b; --late-bg:#f9d8d3;
+  --track:#e1d7c2; --scrim:rgba(20,16,10,.55);
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif; --race:"Racing Sans One","Arial Black",Impact,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root[data-style="muscle"]:not([data-theme="light"]){
+  --bg:#0f0e0c; --surface:#1b1916; --ink:#f2ece0; --muted:#a69d8d; --line:#332f29;
+  --ok:#6fd48a; --ok-bg:#16301d; --soon:#ffb547; --soon-bg:#33270f; --late:#ff6a5c; --late-bg:#3a1712;
+  --track:#2a2722; --scrim:rgba(0,0,0,.65); color-scheme:dark}}
+:root[data-style="muscle"][data-theme="dark"]{
+  --bg:#0f0e0c; --surface:#1b1916; --ink:#f2ece0; --muted:#a69d8d; --line:#332f29;
+  --ok:#6fd48a; --ok-bg:#16301d; --soon:#ffb547; --soon-bg:#33270f; --late:#ff6a5c; --late-bg:#3a1712;
+  --track:#2a2722; --scrim:rgba(0,0,0,.65); color-scheme:dark}
+/* factory paint choices */
+:root[data-style="muscle"][data-mpaint="blue"]{--paint:#1677c9;--paint2:#3fa0f0;--stripe:#f5f2ea;--accent:#1677c9;--accent-ink:#ffffff;--brand:#1677c9}
+:root[data-style="muscle"][data-mpaint="green"]{--paint:#1f4d33;--paint2:#2f7049;--stripe:#f0e9d6;--accent:#2a6a45;--accent-ink:#ffffff;--brand:#1f4d33}
+:root[data-style="muscle"][data-mpaint="yellow"]{--paint:#f2c014;--paint2:#ffd84a;--stripe:#141210;--accent:#f2c014;--accent-ink:#141210;--brand:#f2c014}
+
+/* black vinyl grain at night, plain garage floor by day */
+[data-style="muscle"] body{background:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1.5px) 0 0/5px 5px,var(--bg)}
+/* painted header with twin stripes and a bumblebee band */
+[data-style="muscle"] .bar{padding-bottom:30px;background:
+  linear-gradient(var(--stripe),var(--stripe)) 0 calc(100% - 6px)/100% 7px no-repeat,
+  linear-gradient(var(--stripe),var(--stripe)) 0 calc(100% - 18px)/100% 7px no-repeat,
+  linear-gradient(180deg,var(--paint2),var(--paint) 60%);
+  color:var(--accent-ink);border-bottom:2px solid #9aa0a6}
+[data-style="muscle"] .bar h1{font:400 30px/1.05 var(--race);text-transform:none;letter-spacing:.01em;color:var(--accent-ink);text-shadow:0 2px 0 rgba(0,0,0,.18)}
+[data-style="muscle"] .bar h1 small{font:italic 800 12px/1.3 var(--display);letter-spacing:.2em;color:var(--accent-ink);opacity:.85}
+[data-style="muscle"] .icon-btn{background:radial-gradient(circle at 35% 30%,#fff,#c8cdd2 40%,#7d848b 75%,#d9dde1);color:#1b1712;border-radius:50%;border:1px solid rgba(0,0,0,.3)}
+/* twin Le Mans stripes down every panel */
+[data-style="muscle"] .card,[data-style="muscle"] .hero,[data-style="muscle"] .hist,[data-style="muscle"] .last-box{
+  border:1px solid var(--line);border-radius:8px;background:
+  linear-gradient(var(--paint),var(--paint)) 0 0/6px 100% no-repeat,
+  linear-gradient(var(--paint),var(--paint)) 10px 0/6px 100% no-repeat,var(--surface);padding-left:28px}
+[data-style="muscle"] .hist{padding-left:12px}
+[data-style="muscle"] .last-box{padding-left:24px}
+[data-style="muscle"] .v-name,[data-style="muscle"] .svc-h,[data-style="muscle"] .sheet h2,[data-style="muscle"] .empty h2{font-family:var(--race);font-weight:400;text-transform:none;letter-spacing:.01em}
+[data-style="muscle"] .v-name{font-size:24px}
+[data-style="muscle"] .svc-h svg{color:var(--paint)}
+[data-style="muscle"] .section-h{font:400 22px var(--race);text-transform:none;color:var(--ink);display:flex;align-items:center;gap:10px}
+[data-style="muscle"] .section-h::after{content:"";flex:1;height:12px;background:linear-gradient(var(--paint),var(--paint)) 0 0/100% 4px no-repeat,linear-gradient(var(--paint),var(--paint)) 0 8px/100% 4px no-repeat}
+[data-style="muscle"] .pill{border-radius:3px;font:italic 800 12px/1 var(--display);letter-spacing:.08em;padding:6px 10px;border:2px solid currentColor}
+[data-style="muscle"] .due-box .val{font-style:italic;font-weight:800}
+[data-style="muscle"] .due-box .lbl,[data-style="muscle"] .odo-label{font-style:italic}
+/* engine-turned aluminum dash with a chrome-ringed odometer */
+[data-style="muscle"] .odo{padding:10px 12px;border-radius:8px;border:1px solid #7d848b;
+  background:repeating-radial-gradient(circle at 10px 10px,#e9ecef 0 2px,#b7bdc3 3px,#dfe3e7 5px,#c4c9ce 7px,#eef0f2 9px) 0 0/20px 20px;box-shadow:inset 0 1px 0 #fff}
+[data-style="muscle"] .odo-unit{color:#2b2620;font-weight:800;font-style:italic}
+[data-style="muscle"] .odo-digits{padding:3px;border-radius:5px;background:linear-gradient(180deg,#fafbfc,#9aa0a6 55%,#e5e8eb);box-shadow:0 1px 2px rgba(0,0,0,.35)}
+[data-style="muscle"] .odo-digits span{background:#121110;color:#f2ece0;border-radius:2px;font-style:italic;font-weight:800}
+[data-style="muscle"] .odo-digits span:last-child{background:#f2ece0;color:#121110}
+/* tachometer bar with a redline zone */
+[data-style="muscle"] .meter{height:10px;border-radius:3px;background:linear-gradient(90deg,var(--track) 0 85%,var(--late-bg) 85%);border:1px solid var(--line)}
+[data-style="muscle"] .meter i{border-radius:2px}
+/* painted controls */
+[data-style="muscle"] .btn{border-radius:6px;font:italic 800 16px/1 var(--display);text-transform:uppercase;letter-spacing:.06em;border:2px solid var(--line)}
+[data-style="muscle"] .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:rgba(0,0,0,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 0 rgba(0,0,0,.25)}
+[data-style="muscle"] .fab{border-radius:8px;border:3px solid #c8cdd2;outline:1px solid rgba(0,0,0,.4);font:italic 800 18px/1 var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink);background:linear-gradient(180deg,var(--paint2),var(--paint) 60%)}
+[data-style="muscle"] .chip{border-radius:4px;font-style:italic}
+[data-style="muscle"] .preset{border-radius:6px;font-style:italic;font-weight:700}
+[data-style="muscle"] .preset[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+[data-style="muscle"] .switch:checked{background:var(--accent)}
+[data-style="muscle"] .note{border-radius:8px;border:2px solid var(--paint)}
+[data-style="muscle"] .sheet{border-top:6px solid var(--paint);box-shadow:0 -4px 0 var(--stripe)}
+.look-sw.muscle{background:linear-gradient(90deg,transparent 40%,#141210 40% 47%,transparent 47% 53%,#141210 53% 60%,transparent 60%),linear-gradient(180deg,#ff7a2e,#e8590c)}
+.look-sw.muscle::before{content:"Muscle";position:absolute;left:8px;bottom:6px;font:400 22px/1 "Racing Sans One",Impact,sans-serif;color:#141210;background:#e8590c;padding:0 4px;border-radius:3px}
+.look-sw.muscle.blue{background:linear-gradient(90deg,transparent 40%,#f5f2ea 40% 47%,transparent 47% 53%,#f5f2ea 53% 60%,transparent 60%),linear-gradient(180deg,#3fa0f0,#1677c9)}
+.look-sw.muscle.blue::before{background:#1677c9;color:#fff}
+.look-sw.muscle.green{background:linear-gradient(90deg,transparent 40%,#f0e9d6 40% 47%,transparent 47% 53%,#f0e9d6 53% 60%,transparent 60%),linear-gradient(180deg,#2f7049,#1f4d33)}
+.look-sw.muscle.green::before{background:#1f4d33;color:#fff}
+.look-sw.muscle.yellow{background:linear-gradient(90deg,transparent 40%,#141210 40% 47%,transparent 47% 53%,#141210 53% 60%,transparent 60%),linear-gradient(180deg,#ffd84a,#f2c014)}
+.look-sw.muscle.yellow::before{background:#f2c014}
+.paint.m-orange i{--c1:#e8590c;--c2:#ff7a2e}.paint.m-blue i{--c1:#1677c9;--c2:#3fa0f0}.paint.m-green i{--c1:#1f4d33;--c2:#2f7049}.paint.m-yellow i{--c1:#f2c014;--c2:#ffd84a}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in" id="bar"></div></header>
+<main id="main"></main>
+<button class="fab" id="fab" type="button"></button>
+<div id="sheetHost"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="auto-service-tracker-v1";
+var ICONS={
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.96 3.19 L10.33 0.62 L13.67 0.62 L14.04 3.19 L16.79 4.32 L18.86 2.77 L21.23 5.14 L19.68 7.21 L20.81 9.96 L23.38 10.33 L23.38 13.67 L20.81 14.04 L19.68 16.79 L21.23 18.86 L18.86 21.23 L16.79 19.68 L14.04 20.81 L13.67 23.38 L10.33 23.38 L9.96 20.81 L7.21 19.68 L5.14 21.23 L2.77 18.86 L4.32 16.79 L3.19 14.04 L0.62 13.67 L0.62 10.33 L3.19 9.96 L4.32 7.21 L2.77 5.14 L5.14 2.77 L7.21 4.32Z M17.98 12 A5.9799999999999995 5.9799999999999995 0 1 0 6.0200000000000005 12 A5.9799999999999995 5.9799999999999995 0 1 0 17.98 12Z" fill="currentColor" fill-rule="evenodd"/><path d="M8.47 13.99 A3.99 3.99 0 1 1 15.53 13.99" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><line x1="12" y1="12.61" x2="14.30" y2="10.16" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><circle cx="12" cy="12.61" r="1.07" fill="currentColor"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  drop:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.7c-.4 0-.7.2-.9.5C9.6 5.6 6 10.8 6 14.5a6 6 0 0 0 12 0c0-3.7-3.6-8.9-5.1-11.3-.2-.3-.5-.5-.9-.5z"/></svg>',
+  tire:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/></svg>',
+  wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-9.4 9.4a2.1 2.1 0 0 1-3-3z"/><path d="M14.7 6.3a4 4 0 0 1 5-3.1l-2.6 2.6.4 2.1 2.1.4 2.6-2.6a4 4 0 0 1-3.1 5"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'
+};
+
+/* ---------- dates ---------- */
+function pad(n){return (n<10?"0":"")+n}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parse(s){var p=String(s||"").split("-");if(p.length!==3)return null;var d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d}
+function today(){var d=new Date();d.setHours(0,0,0,0);return d}
+function addMonths(d,m){
+  var y=d.getFullYear(),mo=d.getMonth()+m,day=d.getDate();
+  var last=new Date(y,mo+1,0).getDate();
+  return new Date(y,mo,Math.min(day,last));
+}
+function daysBetween(a,b){return Math.round((b-a)/86400000)}
+function fmtDate(d){return d?d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"—"}
+function num(n){return Math.round(n).toLocaleString()}
+function timeAgo(s){
+  var d=daysBetween(parse(s),today());
+  if(d<=0)return "today";
+  if(d<45)return d+" day"+(d===1?"":"s")+" ago";
+  var m=Math.round(d/30.4);
+  if(m<24)return m+" months ago";
+  return (Math.round(d/36.5)/10)+" years ago";
+}
+
+/* ---------- storage ---------- */
+var storageOk=true;
+function sample(){
+  var t=today();
+  function ago(days){var d=new Date(t);d.setDate(d.getDate()-days);return iso(d)}
+  return clean({
+    units:"mi",example:true,
+    vehicles:[
+      {id:uid(),name:"2019 Honda CR-V",plate:"Family car",vin:"5J6RW2H82KL004817",
+        specs:JSON.parse("{\"year\": \"2019\", \"make\": \"Honda\", \"model\": \"CR-V\", \"trim\": \"EX-L\", \"body\": \"Sport Utility Vehicle (SUV)\", \"engine\": \"1.5L 4-cylinder, 190 hp\", \"fuel\": \"Gasoline\", \"drive\": \"4WD/4-Wheel Drive/4x4\", \"trans\": \"Continuously Variable Transmission (CVT)\", \"built\": \"East Liberty, United States (USA)\", \"gvwr\": \"Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)\", \"fetched\": \""+iso(t)+"\"}"),
+        recalls:JSON.parse("{\"count\": 8, \"items\": [{\"id\": \"26V332000\", \"date\": \"2026-05-21\", \"component\": \"Air bags \\u203a Sensor \\u203a Occupant classification \\u203a Front passenger\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2018-2021, 2023 Acura TLX, 2019-2024 RDX, 2017-2020, 2022-2026 MDX, 2017-2021, 2023, 2025 Honda Ridgeline, 2017-2022 Pilot, 2019-2021 Passport, 2018-2026 Odyssey, 2019-2022 Insight, 2019-2021 HR-V, 2018-2020 Fit, 2020-2022 CR-V Hybrid, 2017-2022 CR-V, 2017-2018, 2021 Civic Type R, 2017-2021 Civic hatchback, 2016-2020 Civic coupe, 2016-2022 Civic, 2017-2022 Accord Hybrid, and 2016-2022 Accord vehicles. The front passenger seat weight sensor\\u2026\"}, {\"id\": \"23V858000\", \"date\": \"2023-12-18\", \"component\": \"Fuel system, gasoline \\u203a Delivery \\u203a Fuel pump\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2013-2023 Honda Accord, Civic Coupe, Civic Sedan, Civic Hatchback, Civic Type R, CR-V, HR-V, Ridgeline, Odyssey, Acura ILX, MDX, MDX Hybrid, RDX, RLX, TLX, 2019-2022 Honda Insight, Passport, 2020 Honda CR-V Hybrid, 2018-2019 Honda Clarity PHEV, Fit, and 2015-2020 Honda Accord Hybrid, Pilot, Acura NSX vehicles. The fuel pump inside the fuel tank may fail.\"}, {\"id\": \"23V158000\", \"date\": \"2023-03-09\", \"component\": \"Seat belts \\u203a Front \\u203a Buckle assembly\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2017-2020 CR-V, 2018-2019 Accord and Accord Hybrid, 2018-2020 Odyssey, 2019 Insight, and 2019-2020 Acura RDX vehicles. A manufacturing issue with the front seat belts may cause the seat belt buckle channel to interfere with the release button, preventing the seat belt buckle from latching.\"}, {\"id\": \"21V215000\", \"date\": \"2021-03-25\", \"component\": \"Fuel system, gasoline \\u203a Delivery \\u203a Fuel pump\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019-2020 Acura MDX, MDX Sport Hybrid, RDX, TLX, Honda Accord, Civic Hatchback, Insight, 2019 Acura ILX, Honda Accord Hybrid, Civic Coupe, Civic Coupe Si, Civic Sedan, Civic Sedan Si, Civic Type R, Fit, HR-V, Odyssey, Passport, Pilot and Ridgeline, and 2018-2019 CR-V vehicles. The low-pressure fuel pump inside the fuel tank may fail.\"}, {\"id\": \"19V865000\", \"date\": \"2019-12-05\", \"component\": \"Structure \\u203a Frame and members\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019-2020 CR-V vehicles. The rear subframe bolts were improperly manufactured and may loosen, allowing the rear subframe to separate.\"}, {\"id\": \"19V694000\", \"date\": \"2019-09-26\", \"component\": \"Equipment \\u203a Other \\u203a Owners/service/other manual\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The owner's guide incorrectly describes when the \\\"Passenger Airbag Off\\\" indicator should illuminate. As such, these vehicles fail to comply with the requirements of Federal Motor Vehicle Safety Standard (FMVSS) number 208, \\\"Occupant Crash Protection.\\\"\"}, {\"id\": \"19V569000\", \"date\": \"2019-08-01\", \"component\": \"Fuel system, gasoline \\u203a Storage \\u203a Tank assembly\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The joint weld between the fuel tank and the vapor return line may have been insufficiently welded, causing the weld to fail.\"}, {\"id\": \"19V383000\", \"date\": \"2019-05-21\", \"component\": \"Air bags \\u203a Frontal \\u203a Driver clockspring/spiral cassette\", \"summary\": \"Honda (American Honda Motor Co.) is recalling certain 2019 CR-V vehicles. The metal core of the steering wheel may have burrs which can damage the harnesses routed within, potentially disabling the driver's air bag or causing it to deploy without warning.\"}], \"checked\": \""+iso(t)+"\", \"key\": \"HONDA|CR-V|2019\"}"),reg:{number:"8MPD514",state:"California",expires:ago(-210)},miles:46850,milesDate:ago(2),intervalMiles:5000,intervalMonths:6,
+        log:[{id:uid(),date:ago(70),miles:42600,note:"Full synthetic 0W-20"},{id:uid(),date:ago(250),miles:37700,note:""}],
+        services:[{id:uid(),type:"Tire rotation",date:ago(70),miles:42600,note:""},{id:uid(),type:"Cabin air filter",date:ago(70),miles:42600,note:""},
+          {id:uid(),type:"Battery replacement",date:ago(400),miles:33100,note:"3-year warranty"}]},
+      {id:uid(),name:"2015 Ford F-150",plate:"Work truck",look:"offroad",reg:{number:"7XKR291",state:"Texas",expires:ago(-20)},miles:118400,milesDate:ago(1),intervalMiles:7500,intervalMonths:6,
+        log:[{id:uid(),date:ago(160),miles:111300,note:"5W-30, new filter"}],
+        services:[{id:uid(),type:"New tires",date:ago(300),miles:104800,note:"Set of 4, all-terrain"},{id:uid(),type:"Tire rotation",date:ago(160),miles:111300,note:""},{id:uid(),type:"Engine air filter",date:ago(160),miles:111300,note:""}]},
+      {id:uid(),name:"2012 Toyota Corolla",plate:"Sam's car",miles:132900,milesDate:ago(5),intervalMiles:5000,intervalMonths:6,
+        log:[{id:uid(),date:ago(205),miles:127600,note:""}],services:[]}
+    ]
+  });
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function clean(d){
+  if(!d||typeof d!=="object"||!Array.isArray(d.vehicles))return null;
+  var out={units:d.units==="km"?"km":"mi",example:!!d.example,vehicles:[]};
+  d.vehicles.forEach(function(v){
+    if(!v||typeof v!=="object")return;
+    out.vehicles.push({
+      id:String(v.id||uid()),name:String(v.name||"Vehicle").slice(0,60),plate:String(v.plate||"").slice(0,60),
+      miles:+v.miles>0?Math.round(+v.miles):0,milesDate:parse(v.milesDate)?v.milesDate:"",
+      look:lookChoices().some(function(c){return c[0]===v.look})?v.look:"",
+      vin:vinClean(v.vin),
+      specs:cleanSpecs(v.specs),recalls:cleanRecalls(v.recalls),
+      reg:{number:String(v.reg&&v.reg.number||"").slice(0,20),state:String(v.reg&&v.reg.state||"").slice(0,30),
+        expires:v.reg&&parse(v.reg.expires)?v.reg.expires:""},
+      intervalMiles:+v.intervalMiles>0?Math.round(+v.intervalMiles):5000,
+      intervalMonths:+v.intervalMonths>0?Math.round(+v.intervalMonths):6,
+      log:(Array.isArray(v.log)?v.log:[]).filter(function(e){return e&&parse(e.date)&&+e.miles>=0}).map(function(e){
+        return {id:String(e.id||uid()),date:e.date,miles:Math.round(+e.miles),note:String(e.note||"").slice(0,200)}}),
+      services:(Array.isArray(v.services)?v.services:[]).filter(function(e){return e&&parse(e.date)&&e.type}).map(function(e){
+        return {id:String(e.id||uid()),type:String(e.type).slice(0,40),date:e.date,miles:+e.miles>=0&&e.miles!==""&&e.miles!=null?Math.round(+e.miles):null,note:String(e.note||"").slice(0,200)}})
+    });
+  });
+  out.style=["classic","lowrider","jdm","offroad","luxury","muscle"].indexOf(d.style)>=0?d.style:"modern";
+  out.lastBackup=parse(d.lastBackup)?d.lastBackup:"";
+  out.backupSnooze=parse(d.backupSnooze)?d.backupSnooze:"";
+  out.homeTipOff=!!d.homeTipOff;
+  out.mpaint=MPAINTS.some(function(p){return p[0]===d.mpaint})?d.mpaint:"orange";
+  out.paint=PAINTS.some(function(p){return p[0]===d.paint})?d.paint:"blue";
+  out.custom=cleanCustom(d.custom);
+  out.reminders=cleanReminders({units:out.units,custom:out.custom,reminders:d.reminders,vehicles:d.vehicles});
+  return out;
+}
+// what can have a reminder; mileage-free ones go by date only
+var REMINDERS=[
+  {type:"Oil change",oil:true,on:true},
+  {type:"Tire rotation",mi:6000,km:10000,months:6,on:true,also:["New tires"],hint:"New tires also restart the count."},
+  {type:"Engine air filter",mi:15000,km:25000,months:12},
+  {type:"Cabin air filter",mi:15000,km:25000,months:12},
+  {type:"Brakes",mi:12000,km:20000,months:12,hint:"A check or service of the brakes."},
+  {type:"Battery replacement",mi:null,months:48},
+  {type:"Wiper blades",mi:null,months:12},
+  {type:"Alignment",mi:null,months:24},
+  {type:"Fuel filter",mi:30000,km:50000,months:24}
+];
+var PAINTS=[["blue","Candy blue"],["green","Candy green"],["red","Candy apple red"],["rootbeer","Root beer"]];
+var MPAINTS=[["orange","Hugger orange"],["blue","Grabber blue"],["green","Highland green"],["yellow","Rally yellow"]];
+var LOOKS=[["modern","Glovebox"],["classic","Classic '50s"],["lowrider","Lowrider"],["jdm","JDM"],["offroad","Off Road"],["luxury","Luxury"],["muscle","'60s Muscle"]];
+// every look a vehicle can pick, with Lowrider and Muscle paints listed separately
+function lookChoices(){
+  var out=[];
+  LOOKS.forEach(function(l){
+    if(l[0]==="lowrider")PAINTS.forEach(function(p){out.push(["lowrider:"+p[0],l[1]+" · "+p[1]])});
+    else if(l[0]==="muscle")MPAINTS.forEach(function(p){out.push(["muscle:"+p[0],l[1]+" · "+p[1]])});
+    else out.push([l[0],l[1]]);
+  });
+  return out;
+}
+/* ---------- VIN ---------- */
+function vinClean(x){return String(x||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,17)}
+// check digit (9th character) used on North American VINs
+function vinCheck(v){
+  var T={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9},W=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2],sum=0;
+  for(var i=0;i<17;i++){var c=v[i];sum+=(/\d/.test(c)?+c:T[c])*W[i]}
+  var r=sum%11;return (r===10?"X":String(r))===v[8];
+}
+// "ok", "short", "letters" (I, O and Q are never used), "check" (typo likely)
+function vinStatus(v){
+  if(!v)return "";
+  if(/[IOQ]/.test(v))return "letters";
+  if(v.length!==17)return "short";
+  return vinCheck(v)?"ok":"check";
+}
+function vinYear(v){
+  var codes="ABCDEFGHJKLMNPRSTVWXY123456789",i=codes.indexOf(v[9]);if(i<0)return null;
+  var y=1980+i,now=today().getFullYear()+1;while(y+30<=now)y+=30;return y;
+}
+function cleanStr(x,n){return String(x==null?"":x).replace(/\s+/g," ").trim().slice(0,n||120)}
+// shorten long text at a word, with an ellipsis
+function shorten(x,n){x=String(x==null?"":x).replace(/\s+/g," ").trim();if(x.length<=n)return x;return x.slice(0,n).replace(/\s+\S*$/,"").replace(/[,;:]$/,"")+"…"}
+// "FUEL SYSTEM, GASOLINE:DELIVERY:FUEL PUMP" -> "Fuel system, gasoline › Delivery › Fuel pump"
+function partName(c){return String(c||"").split(":").map(function(p){p=p.trim().toLowerCase();return p.charAt(0).toUpperCase()+p.slice(1)}).join(" › ")}
+function cleanSpecs(sp){
+  if(!sp||typeof sp!=="object")return null;
+  var o={};["year","make","model","trim","body","engine","fuel","drive","trans","built","gvwr"].forEach(function(k){o[k]=cleanStr(sp[k])});
+  o.fetched=parse(sp.fetched)?sp.fetched:"";return o.make?o:null;
+}
+function cleanRecalls(r){
+  if(!r||typeof r!=="object"||!Array.isArray(r.items))return null;
+  var items=r.items.slice(0,40).map(function(x){return {id:cleanStr(x&&x.id,20),date:parse(x&&x.date)?x.date:"",component:cleanStr(x&&x.component,120),summary:shorten(x&&x.summary,520)}});
+  return {count:items.length,items:items,checked:parse(r.checked)?r.checked:"",key:cleanStr(r.key,80)};
+}
+function titleCase(w){return w.split(/(\s|-)/).map(function(p){return /^(BMW|GMC|RAM|VW|AMC|USA|UK)$/.test(p)||p.charAt(0)==="("?p:p.charAt(0)+p.slice(1).toLowerCase()}).join("")}
+function inViewer(){return !!(window.claude&&typeof window.claude.use==="function")}
+function fetchJson(url){
+  var ctl=window.AbortController?new AbortController():null,timer=setTimeout(function(){ctl&&ctl.abort()},15000);
+  return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){clearTimeout(timer);if(!r.ok)throw new Error("http");return r.json()},function(e){clearTimeout(timer);throw e});
+}
+function offlineMsg(){return inViewer()?"The vehicle lookup can't connect from this preview. It works in the downloaded app.":"Couldn't reach the vehicle lookup. Check your internet connection and try again."}
+// Decodes the VIN with NHTSA's free vPIC service. Only the VIN is sent.
+function lookUpVin(v){
+  return fetchJson("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+encodeURIComponent(v.vin)+"?format=json").then(function(j){
+    var r=j&&j.Results&&j.Results[0];
+    if(!r||!r.Make)throw {code:"notfound"};
+    var eng=[r.DisplacementL?(+r.DisplacementL).toFixed(1)+"L":"",r.EngineCylinders?r.EngineCylinders+"-cylinder":"",r.EngineHP?Math.round(+r.EngineHP)+" hp":""].filter(Boolean).join(" ").replace(/-cylinder (\d)/,"-cylinder, $1");
+    return {year:r.ModelYear,make:titleCase(r.Make),model:r.Model,trim:String(r.Trim||"").split("/")[0],body:String(r.BodyClass||"").replace(/\s*\[.*?\]/g,"").replace("/Multipurpose Vehicle",""),
+      engine:eng,fuel:r.FuelTypePrimary,drive:r.DriveType,trans:r.TransmissionStyle,
+      built:[r.PlantCity?titleCase(r.PlantCity):"",r.PlantCountry?titleCase(r.PlantCountry):""].filter(Boolean).join(", "),gvwr:r.GVWR,fetched:iso(today())};
+  });
+}
+// Recalls for the vehicle's year, make and model (NHTSA's free recall service)
+function checkRecalls(sp){
+  return fetchJson("https://api.nhtsa.gov/recalls/recallsByVehicle?make="+encodeURIComponent(sp.make)+"&model="+encodeURIComponent(sp.model)+"&modelYear="+encodeURIComponent(sp.year)).then(function(j){
+    var items=(j&&j.results||[]).map(function(x){
+      var p=String(x.ReportReceivedDate||"").split("/"),d=p.length===3?p[2]+"-"+p[1]+"-"+p[0]:"";
+      return {id:x.NHTSACampaignNumber,date:d,component:partName(x.Component),summary:shorten(x.Summary,500)};
+    });
+    items.sort(function(a,b){return a.date<b.date?1:-1});
+    return cleanRecalls({items:items,checked:iso(today()),key:[sp.make,sp.model,sp.year].join("|").toUpperCase()});
+  });
+}
+
+var MONTHS=[3,4,6,9,12,18,24,36,48,60];
+var SERVICE_TYPES=["Tire rotation","New tires","Battery replacement","Engine air filter","Cabin air filter","Fuel filter","Brakes","Wiper blades","Alignment"];
+// parts and services the person named themselves, like "Alternator"
+function sameName(a,b){return a.trim().toLowerCase()===b.trim().toLowerCase()}
+function cleanCustom(list){
+  var out=[];
+  (Array.isArray(list)?list:[]).forEach(function(t){
+    t=String(t||"").trim().slice(0,40);
+    if(t&&!sameName(t,"Oil change")&&!SERVICE_TYPES.some(function(x){return sameName(x,t)})&&!out.some(function(x){return sameName(x,t)}))out.push(t);
+  });
+  return out;
+}
+function allRem(){return REMINDERS.concat((data.custom||[]).map(function(t){return {type:t,custom:true,mi:null,months:12}}))}
+function cleanReminders(d){
+  var src=d.reminders&&typeof d.reminders==="object"?d.reminders:{},km=d.units==="km",out={};
+  // older saves kept the tire rotation schedule on each vehicle
+  var old=!d.reminders&&Array.isArray(d.vehicles)&&d.vehicles.filter(function(v){return v&&v.rotateMiles})[0];
+  REMINDERS.concat((d.custom||[]).map(function(t){return {type:t,mi:null,months:12}})).forEach(function(def){
+    var r=src[def.type]||{};
+    if(def.oil){out[def.type]={on:r.on!==undefined?!!r.on:true};return}
+    if(def.type==="Tire rotation"&&old&&!src[def.type])r={on:d.vehicles.some(function(v){return v&&v.rotateOn!==false}),miles:old.rotateMiles,months:old.rotateMonths};
+    var dm=km?def.km:def.mi;
+    out[def.type]={
+      on:r.on!==undefined?!!r.on:!!def.on,
+      miles:r.miles===null?null:(+r.miles>0?Math.round(+r.miles):(dm||null)),
+      months:MONTHS.indexOf(+r.months)>=0?+r.months:def.months
+    };
+  });
+  return out;
+}
+var unreadable=false;
+function load(){
+  var raw=null;
+  try{raw=localStorage.getItem(KEY)}catch(e){storageOk=false;return sample()}
+  if(raw){
+    var c=null;try{c=clean(JSON.parse(raw))}catch(e){}
+    if(c)return c;
+    // keep whatever was there so it can still be recovered, then start fresh
+    try{localStorage.setItem(KEY+"-unreadable-"+Date.now(),raw)}catch(e){}
+    unreadable=true;
+  }
+  return sample();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));storageOk=true}catch(e){storageOk=false}}
+var data=load();
+save();
+
+/* ---------- keeping data safe ---------- */
+// ask the browser not to clear our storage when space runs low or the app goes unused
+var persisted=null;
+function protectStorage(){
+  try{
+    if(!navigator.storage||!navigator.storage.persist)return;
+    navigator.storage.persisted().then(function(p){
+      if(p){persisted=true;return}
+      return navigator.storage.persist().then(function(r){persisted=r});
+    }).then(function(){if(view.name==="settings"&&!$("scrim"))render()},function(){});
+  }catch(e){}
+}
+protectStorage();
+function onHomeScreen(){
+  try{return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}catch(e){return false}
+}
+function isIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)}
+function homeScreenSteps(){
+  return isIOS()?"In Safari, tap the Share button, then Add to Home Screen. Open it from the new icon from then on."
+    :"In your browser menu, tap Add to Home screen or Install app. Open it from the new icon from then on.";
+}
+function hasRealData(){return !data.example&&data.vehicles.some(function(v){return v.log.length||v.services.length||v.miles})}
+function backupAgo(){
+  if(!data.lastBackup)return "Never";
+  var d=daysBetween(parse(data.lastBackup),today());
+  return d<=0?"Today":d===1?"Yesterday":d<45?d+" days ago":Math.round(d/30.4)+" months ago";
+}
+function backupDue(){
+  if(!hasRealData())return false;
+  if(data.backupSnooze&&parse(data.backupSnooze)>today())return false;
+  return !data.lastBackup||daysBetween(parse(data.lastBackup),today())>=30;
+}
+function markBackedUp(){data.lastBackup=iso(today());data.backupSnooze="";save()}
+function backupText(){return JSON.stringify({app:"glovebox-garage",version:1,saved:iso(today()),data:data})}
+// Saves a file. Inside the Claude viewer this goes through its downloads prompt;
+// as a standalone file it is an ordinary browser download.
+// Resolves "saved", "declined" or "unavailable".
+function downloadFile(name,text,type){
+  if(window.claude&&typeof window.claude.use==="function"){
+    return window.claude.use("downloads").then(function(dl){
+      if(!dl)return "unavailable";
+      return dl.save({filename:name,data:text}).then(function(){return "saved"},function(e){
+        return e&&(e.code==="declined"||e.code==="rate_limited")?"declined":"unavailable"});
+    },function(){return "unavailable"});
+  }
+  try{
+    var blob=new Blob([text],{type:type}),a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
+    return Promise.resolve("saved");
+  }catch(e){return Promise.resolve("unavailable")}
+}
+// spreadsheet of every oil change and service; text cells that start like a formula are defused
+function csvCell(v,text){
+  v=v==null?"":String(v);
+  if(text&&/^[=+\-@\t\r]/.test(v))v="'"+v;
+  return '"'+v.replace(/"/g,'""')+'"';
+}
+function historyCsv(){
+  var rows=[["Vehicle","Nickname","Maintenance","Date","Mileage","Unit","Notes"]];
+  data.vehicles.forEach(function(v){
+    var items=v.log.map(function(e){return {type:"Oil change",e:e}}).concat(v.services.map(function(e){return {type:e.type,e:e}}));
+    items.sort(function(a,b){return a.e.date<b.e.date?1:a.e.date>b.e.date?-1:0});
+    items.forEach(function(x){rows.push([v.name,v.plate,x.type,x.e.date,x.e.miles!=null?x.e.miles:"",unit(),x.e.note])});
+  });
+  return "\ufeff"+rows.map(function(r,i){return r.map(function(c,j){return i&&j===4?csvCell(c,false):csvCell(c,true)}).join(",")}).join("\r\n");
+}
+
+/* ---------- service math ---------- */
+function sortedLog(v){return v.log.slice().sort(function(a,b){return b.date<a.date?-1:b.date>a.date?1:b.miles-a.miles})}
+function currentMiles(v){
+  var m=v.miles||0;
+  v.log.forEach(function(e){if(e.miles>m)m=e.miles});
+  v.services.forEach(function(e){if(e.miles!=null&&e.miles>m)m=e.miles});
+  return m;
+}
+// next due by mileage or date, whichever comes first
+function calc(last,iMiles,iMonths,cur){
+  if(!last)return {state:"none"};
+  var lastDate=parse(last.date),dueDate=addMonths(lastDate,iMonths),hasMiles=last.miles!=null&&!!iMiles;
+  var dueMiles=hasMiles?last.miles+iMiles:null,milesLeft=hasMiles?dueMiles-cur:null,daysLeft=daysBetween(today(),dueDate);
+  var totalDays=Math.max(1,daysBetween(lastDate,dueDate));
+  var usedM=hasMiles?(cur-last.miles)/iMiles:0,usedD=(totalDays-daysLeft)/totalDays;
+  var soonMiles=Math.max(300,Math.round(iMiles*0.1));
+  var state=((hasMiles&&milesLeft<=0)||daysLeft<=0)?"late":((hasMiles&&milesLeft<=soonMiles)||daysLeft<=30)?"soon":"ok";
+  return {state:state,last:last,dueDate:dueDate,dueMiles:dueMiles,milesLeft:milesLeft,daysLeft:daysLeft,cur:cur,iMiles:iMiles,
+    used:Math.max(0,Math.min(1,Math.max(usedM,usedD)))};
+}
+function status(v){return calc(sortedLog(v)[0],v.intervalMiles,v.intervalMonths,currentMiles(v))}
+function lastOf(v,types){
+  var best=null;
+  v.services.forEach(function(e){if(types.indexOf(e.type)>=0&&(!best||e.date>best.date||(e.date===best.date&&(e.miles||0)>(best.miles||0))))best=e});
+  return best;
+}
+function remStatus(v,def){
+  if(def.oil)return status(v);
+  var r=data.reminders[def.type];
+  return calc(lastOf(v,[def.type].concat(def.also||[])),r.miles,r.months,currentMiles(v));
+}
+// reminders switched on in Settings, with this vehicle's status for each
+function active(v){
+  return allRem().filter(function(def){return data.reminders[def.type]&&data.reminders[def.type].on}).map(function(def){return {def:def,s:remStatus(v,def)}});
+}
+// registration renewal: due soon within 30 days, overdue once the expiry date has passed
+function regStatus(v){
+  if(!v.reg||!v.reg.expires)return {state:"none"};
+  var d=daysBetween(today(),parse(v.reg.expires));
+  return {state:d<0?"late":d<=30?"soon":"ok",daysLeft:d,expires:parse(v.reg.expires)};
+}
+function regText(r){
+  if(r.state==="none")return "No expiry date";
+  if(r.daysLeft<0)return "Expired "+leftText(r.daysLeft,"d").replace(" overdue"," ago");
+  if(r.daysLeft===0)return "Expires today";
+  return "Renew in "+leftText(r.daysLeft,"d").replace(" left","");
+}
+var RANK={late:3,soon:2,ok:1,none:0};
+function overall(v){
+  var o="none";active(v).forEach(function(x){if(RANK[x.s.state]>RANK[o])o=x.s.state});
+  var r=regStatus(v).state;if(RANK[r]>RANK[o])o=r;
+  return o;
+}
+var LABEL={ok:"Good",soon:"Due soon",late:"Overdue",none:"No record"};
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function $(id){return document.getElementById(id)}
+function unit(){return data.units}
+function leftText(n,kind){
+  if(kind==="mi"){return n>0?num(n)+" "+unit()+" left":num(-n)+" "+unit()+" over"}
+  if(n===0)return "Due today";
+  var a=Math.abs(n),w=a===1?"day":"days";
+  if(a>=60){var m=Math.round(a/30.4);w=m===1?"month":"months";a=m}
+  return n>0?a+" "+w+" left":a+" "+w+" overdue";
+}
+function leftClass(n,kind,iMiles){
+  if(n<=0)return "late";
+  if(kind==="mi")return n<=Math.max(300,iMiles*0.1)?"soon":"ok";
+  return n<=30?"soon":"ok";
+}
+var toastT;
+function toast(msg){var t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true},2400)}
+
+/* ---------- views ---------- */
+var view={name:"home",id:null};
+function go(name,id){view={name:name,id:id||null};render();window.scrollTo(0,0)}
+function vehicle(id){for(var i=0;i<data.vehicles.length;i++)if(data.vehicles[i].id===id)return data.vehicles[i];return null}
+
+// a vehicle can have its own look; its screen uses it, everything else uses the app's look
+function lookOf(v){
+  var L={style:data.style||"modern",paint:data.paint||"blue",mpaint:data.mpaint||"orange"};
+  if(v&&v.look){var p=v.look.split(":");L.style=p[0];if(p[0]==="lowrider")L.paint=p[1];if(p[0]==="muscle")L.mpaint=p[1]}
+  return L;
+}
+function applyStyle(){
+  var L=lookOf(view.name==="vehicle"?vehicle(view.id):null),r=document.documentElement;
+  r.setAttribute("data-style",L.style);r.setAttribute("data-paint",L.paint);r.setAttribute("data-mpaint",L.mpaint);
+}
+function render(){
+  if(view.name==="vehicle"&&!vehicle(view.id))view={name:"home"};
+  applyStyle();
+  updateBadge();
+  if(view.name==="home")renderHome();
+  else if(view.name==="vehicle")renderVehicle(vehicle(view.id));
+  else renderSettings();
+}
+
+function dueBlock(s,what){
+  if(s.state==="none")return '<p class="hint">No '+what+' logged yet. Log the last one to see when the next is due.</p>';
+  var dc=leftClass(s.daysLeft,"d");
+  var milesBox=s.dueMiles!=null
+    ?'<div class="val"><span style="white-space:nowrap">'+num(s.dueMiles)+' <small>'+unit()+'</small></span></div><div class="left '+leftClass(s.milesLeft,"mi",s.iMiles)+'">'+leftText(s.milesLeft,"mi")+'</div>'
+    :'<div class="val">—</div><div class="left none">'+(s.iMiles?'Add mileage next time':'Goes by date only')+'</div>';
+  return '<div class="due">'+
+    '<div class="due-box"><div class="lbl">Next at</div>'+milesBox+'</div>'+
+    '<div class="due-box"><div class="lbl">Or by</div><div class="val">'+esc(fmtDate(s.dueDate))+'</div><div class="left '+dc+'">'+leftText(s.daysLeft,"d")+'</div></div>'+
+  '</div>'+
+  '<div><div class="meter '+s.state+'"><i style="width:'+Math.round(s.used*100)+'%"></i></div>'+
+  '<div class="meter-row"><span>Last: '+(s.last.miles!=null?num(s.last.miles)+' '+unit()+' · ':'')+esc(fmtDate(parse(s.last.date)))+'</span><span>'+Math.round(s.used*100)+'% used</span></div></div>';
+}
+// one-line reminder for the home card
+function miniLine(label,s){
+  var txt,cls;
+  if(s.state==="none"){txt="Not logged yet";cls="none"}
+  else{
+    var useMiles=s.milesLeft!=null&&(s.milesLeft/s.iMiles)<(s.daysLeft/Math.max(1,daysBetween(parse(s.last.date),s.dueDate)));
+    txt=useMiles?leftText(s.milesLeft,"mi"):leftText(s.daysLeft,"d");cls=s.state;
+  }
+  return '<div class="mini"><span class="mini-l">'+label+'</span><span class="left '+cls+'">'+txt+'</span></div>';
+}
+
+function renderHome(){
+  $("bar").innerHTML='<h1><small>Service reminders</small>Glovebox Garage</h1><button class="icon-btn" type="button" id="gearBtn" aria-label="Settings">'+ICONS.gear+'</button>';
+  $("gearBtn").onclick=function(){go("settings")};
+  var h="";
+  if(!storageOk)h+='<div class="note"><p>This browser isn\'t letting the tracker save. Changes will be lost when you close it. Check that you\'re not in a private window.</p></div>';
+  if(unreadable)h+='<div class="note"><p><b>Your saved data couldn\'t be read, so the tracker started fresh.</b> A copy was kept on this device. If you have a backup, restore it in Settings.</p><button class="link-btn" type="button" id="toSettings1">Open Settings</button></div>';
+  if(backupDue())h+='<div class="note" id="backupNote"><p><b>Time to back up.</b> Your vehicles are saved only on this device. Last backup: '+backupAgo().toLowerCase()+'.</p>'+
+    '<div class="note-btns"><button class="link-btn" type="button" id="backupNow">Back up now</button><button class="link-btn" type="button" id="backupLater">Later</button></div></div>';
+  if(!onHomeScreen()&&!data.homeTipOff&&!data.example&&data.vehicles.length&&window.matchMedia&&window.matchMedia("(pointer:coarse)").matches)
+    h+='<div class="note" id="homeTip"><p><b>'+(installEvent?'Install the app.':'Add this to your Home Screen.')+'</b> It opens like an app, works offline, and your phone is less likely to clear its data. '+(installEvent?'':homeScreenSteps())+'</p>'+
+      '<div class="note-btns">'+(installEvent?'<button class="link-btn" type="button" id="installBtn">Install</button>':'')+'<button class="link-btn" type="button" id="homeTipOff">'+(installEvent?'Not now':'Got it')+'</button></div></div>';
+  if(data.example)h+='<div class="note"><p><b>These are example vehicles.</b> They disappear when you add your first vehicle.</p><button class="link-btn" type="button" id="clearEx">Clear examples</button></div>';
+  if(!data.vehicles.length){
+    h+='<div class="empty"><h2>No vehicles yet</h2><p>Add a car or truck, then log its last oil change and tire rotation. The tracker works out when the next ones are due, by mileage or date, whichever comes first. Choose what you get reminders for in Settings.</p></div>';
+  }else{
+    var counts={late:0,soon:0,ok:0,none:0},list=data.vehicles.map(function(v){var o=overall(v);counts[o]++;return {v:v,s:status(v),a:active(v),o:o}});
+    var order={late:0,soon:1,none:2,ok:3};
+    list.sort(function(a,b){return order[a.o]-order[b.o]});
+    h+='<div class="summary">'+
+      '<span class="chip"><b>'+data.vehicles.length+'</b> vehicle'+(data.vehicles.length===1?"":"s")+'</span>'+
+      (counts.late?'<span class="chip" style="color:var(--late)"><b style="color:inherit">'+counts.late+'</b> overdue</span>':'')+
+      (counts.soon?'<span class="chip" style="color:var(--soon)"><b style="color:inherit">'+counts.soon+'</b> due soon</span>':'')+
+      (!counts.late&&!counts.soon&&counts.ok?'<span class="chip" style="color:var(--ok)">All up to date</span>':'')+
+    '</div>';
+    list.forEach(function(x){
+      var v=x.v,s=x.s;
+      h+='<button class="card" type="button" data-open="'+esc(v.id)+'">'+
+        '<div class="card-top"><div><h2 class="v-name">'+esc(v.name)+'</h2><div class="v-sub">'+(v.plate?esc(v.plate)+' · ':'')+num(currentMiles(v))+' '+unit()+
+          (v.look?' · <span class="look-tag">'+esc((lookChoices().filter(function(c){return c[0]===v.look})[0]||["",""])[1])+' look</span>':'')+'</div></div>'+
+        '<span class="pill '+x.o+'">'+LABEL[x.o]+'</span></div>'+
+        // oil and tire rotation always show; other reminders once something is logged
+        '<div class="mini-list">'+x.a.filter(function(r){return r.def.oil||r.def.type==="Tire rotation"||r.s.state!=="none"}).map(function(r){return miniLine(r.def.type,r.s)}).join("")+
+          (function(){var rs=regStatus(v);return rs.state==="soon"||rs.state==="late"?'<div class="mini"><span class="mini-l">Registration</span><span class="left '+rs.state+'">'+regText(rs)+'</span></div>':''})()+'</div>'+
+        (data.reminders["Oil change"].on&&s.state!=="none"?'<div><div class="meter '+s.state+'"><i style="width:'+Math.round(s.used*100)+'%"></i></div>'+
+          '<div class="meter-row"><span>Next oil change: '+num(s.dueMiles)+' '+unit()+' or '+esc(fmtDate(s.dueDate))+'</span></div></div>':'')+
+        '</button>';
+    });
+  }
+  $("main").innerHTML=h;
+  if($("backupNow"))$("backupNow").onclick=function(){go("settings");var b=$("backupSec");if(b)b.scrollIntoView()};
+  if($("backupLater"))$("backupLater").onclick=function(){var d=today();d.setDate(d.getDate()+7);data.backupSnooze=iso(d);save();render();toast("We'll remind you in a week")};
+  if($("installBtn"))$("installBtn").onclick=installApp;
+  if($("homeTipOff"))$("homeTipOff").onclick=function(){data.homeTipOff=true;save();render()};
+  if($("toSettings1"))$("toSettings1").onclick=function(){go("settings")};
+  var c=$("clearEx");if(c)c.onclick=function(){confirmSheet("Clear the example vehicles?","This removes the 3 example vehicles so you can add your own.","Clear examples",function(){data.vehicles=[];data.example=false;save();render();toast("Examples cleared")})};
+  Array.prototype.forEach.call(document.querySelectorAll("[data-open]"),function(b){b.onclick=function(){go("vehicle",b.getAttribute("data-open"))}});
+  setFab("Add vehicle",ICONS.plus,function(){vehicleSheet(null)});
+}
+
+// the registration shown like a license plate, with its renewal status underneath
+// VIN, decoded details and recalls
+function detailsCard(v){
+  var h='<h2 class="section-h">Vehicle details</h2><section class="hero details">';
+  if(!v.vin)return h+'<p class="hint">Add the VIN to look up the engine, trim and drivetrain, and check for safety recalls. It\'s on the driver\'s side of the dashboard, inside the driver\'s door frame and on your registration and insurance card.</p>'+
+    '<button class="btn block" type="button" id="vinAdd">+ Add VIN</button></section>';
+  var st=vinStatus(v.vin);
+  h+='<div class="vin-row"><div><div class="odo-label">VIN</div><div class="vin">'+esc(v.vin)+'</div></div><button class="btn small" type="button" id="vinCopy">Copy</button></div>';
+  if(st!=="ok")h+='<p class="hint warn-txt">'+(st==="check"?"This VIN doesn\'t pass the check-digit test, so a character may be mistyped. Double-check it against the car.":"A VIN has 17 letters and numbers, and never uses I, O or Q. Check it with the edit button.")+'</p>';
+  var sp=v.specs;
+  if(sp){
+    var rows=[["Vehicle",[sp.year,sp.make,sp.model,sp.trim].filter(Boolean).join(" ")],["Engine",[sp.engine,sp.fuel].filter(Boolean).join(" · ")],["Drive",sp.drive],["Transmission",sp.trans],["Body",sp.body],["Built in",sp.built],["Weight class",sp.gvwr]];
+    h+='<dl class="specs">'+rows.filter(function(r){return r[1]}).map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd></div>'}).join("")+'</dl>';
+  }else{
+    var y=st==="ok"?vinYear(v.vin):null;
+    h+='<p class="hint">'+(y?'Model year '+y+' (from the VIN). ':'')+'Look up the details to see the engine, trim, drivetrain and recalls. Only the VIN is sent, to the U.S. government\'s free NHTSA vehicle database.</p>';
+  }
+  h+='<button class="btn'+(sp?'':' primary')+' block" type="button" id="vinLookup"'+(st==="letters"||st==="short"?" disabled":"")+'>'+(sp?'Look up again':'Look up vehicle details')+'</button>';
+  if(sp){
+    var rc=v.recalls,fresh=rc&&rc.key===[sp.make,sp.model,sp.year].join("|").toUpperCase();
+    h+='<div class="recalls"><div class="card-top"><div><h3 class="rc-h">Safety recalls</h3>'+
+      (fresh?'<div class="hist-meta">'+rc.count+' recall'+(rc.count===1?'':'s')+' for the '+esc(sp.year+' '+sp.make+' '+sp.model)+' · checked '+esc(timeAgo(rc.checked))+'</div>':'<div class="hist-meta">Not checked yet</div>')+
+      '</div>'+(fresh?'<span class="pill '+(rc.count?'soon':'ok')+'">'+(rc.count?rc.count+' found':'None')+'</span>':'')+'</div>';
+    if(fresh&&rc.count){
+      h+='<details class="rc-list"><summary>Show recalls</summary>'+rc.items.map(function(x){
+        return '<div class="rc-item"><div class="rc-comp">'+esc(x.component)+'</div><div class="hist-meta">'+(x.date?esc(fmtDate(parse(x.date)))+' · ':'')+'Campaign '+esc(x.id)+'</div><p>'+esc(x.summary)+'</p></div>'}).join("")+'</details>';
+    }
+    h+='<p class="hint">These are recalls for every '+esc(sp.year+' '+sp.make+' '+sp.model)+'. To see whether any are still open on your car, check your VIN on nhtsa.gov or ask a dealer. Recall repairs are free.</p>'+
+      '<div class="row-btns"><button class="btn" type="button" id="rcCheck">'+(fresh?'Check again':'Check recalls')+'</button>'+
+      '<a class="btn" href="https://www.nhtsa.gov/recalls?vin='+encodeURIComponent(v.vin)+'" target="_blank" rel="noopener">Check my VIN</a></div></div>';
+  }
+  return h+'</section>';
+}
+function regTile(v){
+  var r=v.reg||{};
+  if(!r.number&&!r.expires)return '<button class="reg-add" type="button" id="regAdd">+ Add registration</button>';
+  var rs=regStatus(v);
+  return '<div class="reg"><div class="odo-label">Registration</div>'+
+    '<div class="plate" aria-label="Registration '+esc(r.number||"not entered")+(r.state?", "+esc(r.state):"")+'">'+
+      '<span class="plate-state">'+esc(r.state||"Registration")+'</span><span class="plate-no">'+esc(r.number||"—")+'</span></div>'+
+    (r.expires?'<div class="reg-exp">Expires '+esc(fmtDate(rs.expires))+'</div><div class="left '+rs.state+'">'+regText(rs)+'</div>':'<div class="reg-exp">Add the expiry date to get a reminder</div>')+
+  '</div>';
+}
+function odometer(n){
+  var s=String(Math.max(0,Math.round(n)));while(s.length<6)s="0"+s;
+  return '<span class="odo-digits" aria-label="'+num(n)+' '+unit()+'">'+s.split("").map(function(c){return "<span>"+c+"</span>"}).join("")+'</span>'+
+    '<span class="odo-plain" aria-hidden="true">'+num(n)+'</span>';
+}
+
+function renderVehicle(v){
+  var o=overall(v),act=active(v),oilOn=data.reminders["Oil change"].on;
+  $("bar").innerHTML='<button class="icon-btn" type="button" id="backBtn" aria-label="Back to all vehicles">'+ICONS.back+'</button><h1><small>'+(v.plate?esc(v.plate):"Vehicle")+'</small>'+esc(v.name)+'</h1><button class="icon-btn" type="button" id="editBtn" aria-label="Edit vehicle">'+ICONS.edit+'</button>';
+  $("backBtn").onclick=function(){go("home")};
+  $("editBtn").onclick=function(){vehicleSheet(v)};
+  var h='<section class="hero">'+
+    '<div class="card-top"><div><div class="odo-label">Odometer</div></div><span class="pill '+o+'">'+LABEL[o]+'</span></div>'+
+    '<div class="odo-row"><div class="odo-col">'+
+      '<div class="odo">'+odometer(currentMiles(v))+'<span class="odo-unit">'+unit()+'</span></div>'+
+      (v.milesDate?'<p class="hint">Updated '+esc(fmtDate(parse(v.milesDate)))+'</p>':'')+
+    '</div>'+regTile(v)+'</div>'+
+    '<button class="btn block" type="button" id="milesBtn">Update mileage</button>'+
+  '</section>'+
+  act.map(function(x,i){
+    var def=x.def,s=x.s,r=data.reminders[def.type];
+    var every=def.oil?'Every '+num(v.intervalMiles)+' '+unit()+' or '+v.intervalMonths+' months, whichever comes first.'
+      :'Every '+(r.miles?num(r.miles)+' '+unit()+' or ':'')+r.months+' months'+(r.miles?', whichever comes first.':'.')+(def.hint?' '+def.hint:'');
+    return '<section class="hero"><div class="card-top"><div><h2 class="svc-h">'+(def.oil?ICONS.drop:def.type==="Tire rotation"?ICONS.tire:ICONS.wrench)+esc(def.type)+'</h2></div><span class="pill '+s.state+'">'+LABEL[s.state]+'</span></div>'+
+      dueBlock(s,def.type.toLowerCase())+
+      '<button class="btn primary block" type="button" '+(def.oil?'id="logBtn2"':'data-log="'+esc(def.type)+'"')+'>Log '+esc(def.oil?"oil change":def.type.toLowerCase())+'</button>'+
+      '<p class="hint">'+every+'</p></section>';
+  }).join("")+
+  (oilOn?'':'<button class="btn block" type="button" id="logBtn2">Log oil change</button>')+
+  (act.length?'':'<p class="hint">All reminders are off. Choose what to be reminded about in Settings.</p>')+
+  '<button class="btn block" type="button" id="svcBtn">+ Add other maintenance</button>'+
+  detailsCard(v);
+  // most recent of each kind of maintenance, for a quick "last done" glance
+  var latest={};
+  v.services.forEach(function(e){var k=e.type;if(!latest[k]||e.date>latest[k].date)latest[k]=e});
+  var kinds=Object.keys(latest).sort(function(a,b){return latest[b].date<latest[a].date?-1:1});
+  if(kinds.length){
+    h+='<h2 class="section-h">Last done</h2><div class="last-grid">'+kinds.map(function(k){var e=latest[k];
+      return '<div class="last-box"><div class="lbl">'+esc(k)+'</div><div class="last-date">'+esc(fmtDate(parse(e.date)))+'</div><div class="hist-meta">'+(e.miles!=null?num(e.miles)+' '+unit()+' · ':'')+esc(timeAgo(e.date))+'</div></div>'}).join("")+'</div>';
+  }
+  var all=sortedLog(v).map(function(e){return {kind:"oil",type:"Oil change",e:e}})
+    .concat(v.services.map(function(e){return {kind:"svc",type:e.type,e:e}}))
+    .sort(function(a,b){return a.e.date<b.e.date?1:a.e.date>b.e.date?-1:(b.e.miles||0)-(a.e.miles||0)});
+  h+='<h2 class="section-h">Maintenance history</h2>';
+  if(!all.length)h+='<div class="hist"><div class="hist-row"><div class="hist-meta">Nothing logged yet. Log an oil change or other maintenance to start the history.</div></div></div>';
+  else{
+    h+='<div class="hist">'+all.map(function(x){var e=x.e;
+      return '<div class="hist-row"><span class="tag'+(x.kind==="oil"?" oil":"")+'">'+(x.kind==="oil"?ICONS.drop:ICONS.wrench)+'</span><div><div class="hist-date">'+esc(x.type)+'</div><div class="hist-meta">'+esc(fmtDate(parse(e.date)))+(e.miles!=null?' · '+num(e.miles)+' '+unit():'')+(e.note?' · '+esc(e.note):'')+'</div></div>'+
+        '<button class="hist-del" type="button" data-del="'+esc(e.id)+'" data-kind="'+x.kind+'" aria-label="Delete '+esc(x.type)+' from '+esc(fmtDate(parse(e.date)))+'">'+ICONS.trash+'</button></div>';
+    }).join("")+'</div>';
+  }
+  $("main").innerHTML=h;
+  $("milesBtn").onclick=function(){milesSheet(v)};
+  if($("regAdd"))$("regAdd").onclick=function(){vehicleSheet(v,"vRegNo")};
+  if($("vinAdd"))$("vinAdd").onclick=function(){vehicleSheet(v,"vVin")};
+  if($("vinCopy"))$("vinCopy").onclick=function(){
+    var vin=v.vin;try{navigator.clipboard.writeText(vin).then(function(){toast("VIN copied")},function(){toast("VIN: "+vin)})}catch(e){toast("VIN: "+vin)}
+  };
+  function busy(id,label){var b=$(id);if(b){b.disabled=true;b.textContent=label}}
+  if($("vinLookup"))$("vinLookup").onclick=function(){
+    busy("vinLookup","Looking up…");
+    lookUpVin(v).then(function(sp){
+      v.specs=sp;save();
+      return checkRecalls(sp).then(function(rc){v.recalls=rc;save()},function(){}).then(function(){
+        render();
+        var nice=[sp.year,sp.make,sp.model,sp.trim].filter(Boolean).join(" ");
+        if(nice&&nice!==v.name)confirmSheet("Use “"+nice+"” as the name?","The lookup found a "+nice+". You can keep your own name instead.","Use this name",function(){v.name=nice;save();render();toast("Name updated")});
+        else toast("Vehicle details updated");
+      });
+    }).catch(function(e){render();toast(e&&e.code==="notfound"?"That VIN wasn't found. Check it with the edit button.":offlineMsg())});
+  };
+  if($("rcCheck"))$("rcCheck").onclick=function(){
+    busy("rcCheck","Checking…");
+    checkRecalls(v.specs).then(function(rc){v.recalls=rc;save();render();toast(rc.count?rc.count+" recall"+(rc.count===1?"":"s")+" found for this model":"No recalls found for this model")},function(){render();toast(offlineMsg())});
+  };
+  $("logBtn2").onclick=function(){logSheet(v)};
+  $("svcBtn").onclick=function(){serviceSheet(v)};
+  Array.prototype.forEach.call(document.querySelectorAll("[data-log]"),function(b){b.onclick=function(){serviceSheet(v,b.getAttribute("data-log"))}});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-del]"),function(b){b.onclick=function(){
+    var id=b.getAttribute("data-del");
+    if(b.getAttribute("data-kind")==="oil"){
+      confirmSheet("Delete this oil change?","It will be removed from the history and the next due date will be recalculated.","Delete",function(){
+        v.log=v.log.filter(function(e){return e.id!==id});save();render();toast("Oil change deleted")},true);
+    }else{
+      confirmSheet("Delete this maintenance?","It will be removed from the history.","Delete",function(){
+        v.services=v.services.filter(function(e){return e.id!==id});save();render();toast("Maintenance deleted")},true);
+    }
+  }});
+  setFab("Add maintenance",ICONS.wrench,function(){serviceSheet(v)});
+}
+
+function renderSettings(){
+  $("bar").innerHTML='<button class="icon-btn" type="button" id="backBtn" aria-label="Back to all vehicles">'+ICONS.back+'</button><h1><small>Glovebox Garage</small>Settings</h1>';
+  $("backBtn").onclick=function(){go("home")};
+  var h='<div class="hist">'+
+    '<div class="settings-row"><div><b>Distance</b><br><span>Used for mileage and intervals</span></div><div class="presets" role="group" aria-label="Distance units">'+
+      '<button class="preset" type="button" data-units="mi" aria-pressed="'+(unit()==="mi")+'">Miles</button><button class="preset" type="button" data-units="km" aria-pressed="'+(unit()==="km")+'">Km</button></div></div>'+
+  '</div>'+
+  '<h2 class="section-h">Look</h2>'+
+  '<div class="looks" role="group" aria-label="Look">'+
+    '<button class="look" type="button" data-look="modern" aria-pressed="'+(data.style==="modern")+'"><span class="look-sw modern"></span>Glovebox (default)</button>'+
+    '<button class="look" type="button" data-look="classic" aria-pressed="'+(data.style==="classic")+'"><span class="look-sw classic"></span>Classic \'50s</button>'+
+    '<button class="look" type="button" data-look="lowrider" aria-pressed="'+(data.style==="lowrider")+'"><span class="look-sw lowrider '+esc(data.paint)+'"></span>Lowrider</button>'+
+    '<button class="look" type="button" data-look="jdm" aria-pressed="'+(data.style==="jdm")+'"><span class="look-sw jdm"></span>JDM</button>'+
+    '<button class="look" type="button" data-look="offroad" aria-pressed="'+(data.style==="offroad")+'"><span class="look-sw offroad"></span>Off Road</button>'+
+    '<button class="look" type="button" data-look="luxury" aria-pressed="'+(data.style==="luxury")+'"><span class="look-sw luxury"></span>Luxury</button>'+
+    '<button class="look" type="button" data-look="muscle" aria-pressed="'+(data.style==="muscle")+'"><span class="look-sw muscle '+esc(data.mpaint)+'"></span>\'60s Muscle</button>'+
+  '</div>'+
+  (data.style==="muscle"?'<div class="field"><span class="lbl">Factory paint</span><div class="paints" role="group" aria-label="Factory paint">'+
+    MPAINTS.map(function(p){return '<button class="paint m-'+p[0]+'" type="button" data-mpaint="'+p[0]+'" aria-pressed="'+(data.mpaint===p[0])+'"><i></i>'+p[1]+'</button>'}).join("")+'</div></div>':'')+
+  (data.style==="lowrider"?'<div class="field"><span class="lbl">Lowrider paint</span><div class="paints" role="group" aria-label="Lowrider paint">'+
+    PAINTS.map(function(p){return '<button class="paint '+p[0]+'" type="button" data-paint="'+p[0]+'" aria-pressed="'+(data.paint===p[0])+'"><i></i>'+p[1]+'</button>'}).join("")+'</div></div>':'')+
+  '<h2 class="section-h">Reminders</h2>'+
+  '<p class="hint" style="margin-top:-6px">Choose what you want reminders for. Each is due by mileage or months, whichever comes first.</p>'+
+  '<div class="hist" id="remList">'+allRem().map(function(def,i){
+    var r=data.reminders[def.type];
+    return '<div class="rem-row"><div class="rem-top"><label class="rem-name" for="rem'+i+'">'+esc(def.type)+(def.custom?' <span class="own">Your own</span>':'')+'</label>'+
+      (def.custom?'<button class="hist-del" type="button" data-delcustom="'+i+'" aria-label="Remove '+esc(def.type)+' from your list">'+ICONS.trash+'</button>':'')+
+      '<input type="checkbox" class="switch" id="rem'+i+'" data-rem="'+i+'"'+(r.on?" checked":"")+'></div>'+
+      (r.on?(def.oil?'<p class="hint">Set the oil change interval for each vehicle with its edit button.</p>'
+        :'<div class="rem-every"><span>Every</span><input id="remMi'+i+'" data-remmi="'+i+'" inputmode="numeric" aria-label="'+esc(def.type)+' interval in '+unit()+'" placeholder="Any" value="'+(r.miles?num(r.miles):"")+'"><span>'+unit()+' or</span>'+
+          '<select id="remMo'+i+'" data-remmo="'+i+'" aria-label="'+esc(def.type)+' interval in months">'+MONTHS.map(function(m){return '<option value="'+m+'"'+(m===r.months?" selected":"")+'>'+m+' months</option>'}).join("")+'</select></div>'):'')+
+    '</div>';
+  }).join("")+'</div>'+
+  '<h2 class="section-h">Your own parts</h2>'+
+  '<div class="hist"><div class="settings-row" style="flex-direction:column;align-items:stretch">'+
+    '<p class="hint">Add any part or service that isn\'t in the list, named however you like. It shows up when you add maintenance, and you can turn on a reminder for it above.</p>'+
+    '<form id="customForm" class="add-own" novalidate><input id="customName" maxlength="40" autocomplete="off" aria-label="Part or service name" placeholder="e.g. Alternator"><button class="btn primary" type="submit">Add</button></form>'+
+    '<p class="err" id="customErr" hidden></p>'+
+  '</div></div>'+
+  '<h2 class="section-h" id="backupSec">Keep your data safe</h2>'+
+  '<div class="hist">'+
+    '<div class="settings-row"><div><b>Last backup</b><br><span>Back up at least once a month</span></div><b class="safe-val '+(backupDue()?"late":data.lastBackup?"ok":"")+'">'+backupAgo()+'</b></div>'+
+    '<div class="settings-row"><div><b>On your Home Screen</b><br><span>'+(onHomeScreen()?"Opened from the Home Screen icon":homeScreenSteps())+'</span></div>'+(installEvent&&!onHomeScreen()?'<button class="btn primary small" type="button" id="installBtn2">Install</button>':'<b class="safe-val '+(onHomeScreen()?"ok":"")+'">'+(onHomeScreen()?"Yes":"Not yet")+'</b>')+'</div>'+
+    '<div class="settings-row"><div><b>Storage</b><br><span>'+(persisted?"The browser will keep your data even when space is low":"The browser may clear data if space runs low or the app isn\'t used for a while. Adding it to your Home Screen helps.")+'</span></div><b class="safe-val '+(persisted?"ok":"")+'">'+(persisted?"Protected":persisted===false?"Not protected":"Checking")+'</b></div>'+
+  '</div>'+
+  '<h2 class="section-h">Backup &amp; export</h2>'+
+  '<div class="hist"><div class="settings-row" style="flex-direction:column;align-items:stretch">'+
+    '<p class="hint">Your vehicles are saved on this device only. Save a backup file to iCloud Drive, Google Drive or your email, and restore it here if anything goes wrong or when you get a new phone.</p>'+
+    '<button class="btn primary" type="button" id="dlBk">Download backup file</button>'+
+    '<button class="btn" type="button" id="restoreFileBtn">Restore from backup file</button>'+
+    '<input type="file" id="restoreFile" accept=".json,application/json,text/plain" hidden>'+
+    '<button class="btn" type="button" id="dlCsv">Download spreadsheet (CSV)</button>'+
+    '<p class="hint">The spreadsheet lists every oil change and service and opens in Excel, Numbers or Google Sheets. It can\'t be restored; use the backup file for that.</p>'+
+    '<details class="paste"><summary>Copy or paste a backup as text</summary>'+
+      '<div class="paste-in"><button class="btn" type="button" id="copyBk">Copy backup</button>'+
+      '<div class="field"><label for="restoreTxt">Restore from pasted text</label><textarea id="restoreTxt" placeholder="Paste your backup here"></textarea></div>'+
+      '<button class="btn" type="button" id="restoreBtn">Restore pasted backup</button></div>'+
+    '</details>'+
+    '<p class="err" id="restoreErr" hidden></p>'+
+  '</div></div>'+
+  '<h2 class="section-h">Start over</h2>'+
+  '<div class="hist"><div class="settings-row" style="flex-direction:column;align-items:stretch">'+
+    '<button class="btn danger" type="button" id="wipeBtn">Delete all vehicles</button>'+
+    '<button class="btn" type="button" id="sampleBtn">Load example vehicles</button>'+
+  '</div></div>';
+  $("main").innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-rem]"),function(c){c.onchange=function(){
+    var def=allRem()[+c.getAttribute("data-rem")];data.reminders[def.type].on=c.checked;save();
+    var y=window.scrollY;render();window.scrollTo(0,y);
+    toast((c.checked?"Reminders on for ":"Reminders off for ")+def.type.toLowerCase());
+  }});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-remmi]"),function(inp){inp.onchange=function(){
+    var def=allRem()[+inp.getAttribute("data-remmi")],n=readNum(inp.id);
+    data.reminders[def.type].miles=(n>=100&&n<=200000)?n:null;inp.value=data.reminders[def.type].miles?num(n):"";save();toast("Saved")}});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-remmo]"),function(sel){sel.onchange=function(){
+    data.reminders[allRem()[+sel.getAttribute("data-remmo")].type].months=+sel.value;save();toast("Saved")}});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-look]"),function(b){b.onclick=function(){
+    data.style=b.getAttribute("data-look");save();var y=window.scrollY;render();window.scrollTo(0,y);
+    toast({classic:"Classic '50s look on",lowrider:"Lowrider look on",jdm:"JDM look on",offroad:"Off Road look on",luxury:"Luxury look on",muscle:"'60s Muscle look on"}[data.style]||"Glovebox look on");
+  }});
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-mpaint]"),function(b){b.onclick=function(){
+    data.mpaint=b.getAttribute("data-mpaint");save();var y=window.scrollY;render();window.scrollTo(0,y);
+    toast(MPAINTS.filter(function(p){return p[0]===data.mpaint})[0][1]+" paint on");
+  }});
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-paint]"),function(b){b.onclick=function(){
+    data.paint=b.getAttribute("data-paint");save();var y=window.scrollY;render();window.scrollTo(0,y);
+    toast(PAINTS.filter(function(p){return p[0]===data.paint})[0][1]+" paint on");
+  }});
+  $("customForm").onsubmit=function(e){
+    e.preventDefault();
+    var name=$("customName").value.trim().slice(0,40),err=$("customErr");
+    if(!name){err.textContent="Type the name of the part or service, like Alternator.";err.hidden=false;return}
+    if(allRem().some(function(d){return sameName(d.type,name)})||SERVICE_TYPES.some(function(t){return sameName(t,name)})){err.textContent=name+" is already on the list.";err.hidden=false;return}
+    addCustom(name);save();
+    var y=window.scrollY;render();window.scrollTo(0,y);toast(name+" added");
+  };
+  Array.prototype.forEach.call(document.querySelectorAll("[data-delcustom]"),function(b){b.onclick=function(){
+    var t=allRem()[+b.getAttribute("data-delcustom")].type;
+    confirmSheet("Remove "+t+"?","It comes off your list and its reminder stops. Anything you've already logged stays in the history.","Remove",function(){
+      data.custom=data.custom.filter(function(x){return x!==t});delete data.reminders[t];save();var y=window.scrollY;render();window.scrollTo(0,y);toast(t+" removed")},true);
+  }});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-units]"),function(b){b.onclick=function(){data.units=b.getAttribute("data-units");save();render()}});
+  if($("installBtn2"))$("installBtn2").onclick=installApp;
+  $("dlBk").onclick=function(){
+    downloadFile("glovebox-garage-backup-"+iso(today())+".json",backupText(),"application/json").then(function(r){
+      if(r==="saved"){markBackedUp();refreshSettings();toast("Backup file saved. Keep it somewhere safe.")}
+      else if(r==="unavailable")toast("Files can't be saved here. Use Copy backup instead.");
+    });
+  };
+  $("dlCsv").onclick=function(){
+    downloadFile("glovebox-garage-history-"+iso(today())+".csv",historyCsv(),"text/csv").then(function(r){
+      if(r==="saved")toast("Spreadsheet saved");
+      else if(r==="unavailable")toast("Files can't be saved here.");
+    });
+  };
+  $("copyBk").onclick=function(){
+    var txt=backupText();
+    function fallback(){var t=$("restoreTxt");t.value=txt;t.focus();t.select();markBackedUp();toast("Backup selected. Copy it from the box.")}
+    try{navigator.clipboard.writeText(txt).then(function(){markBackedUp();refreshSettings();toast("Backup copied. Paste it into a note or email.")},fallback)}catch(e){fallback()}
+  };
+  function restoreFrom(text,what){
+    var err=$("restoreErr"),c=null;err.hidden=true;
+    try{var j=JSON.parse(String(text).replace(/^\ufeff/,"").trim());c=clean(j&&j.data?j.data:j)}catch(e){}
+    if(!c){err.textContent="That "+what+" isn't a backup from this tracker. Choose the .json backup file, or copy the whole backup text.";err.hidden=false;return}
+    confirmSheet("Restore this backup?","It replaces the "+data.vehicles.length+" vehicle"+(data.vehicles.length===1?"":"s")+" on this device with the "+c.vehicles.length+" in the backup.","Restore",function(){
+      c.example=false;data=c;unreadable=false;save();go("home");toast("Backup restored")});
+  }
+  $("restoreBtn").onclick=function(){restoreFrom($("restoreTxt").value,"text")};
+  $("restoreFileBtn").onclick=function(){$("restoreFile").click()};
+  $("restoreFile").onchange=function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();r.onload=function(){restoreFrom(r.result,"file")};r.onerror=function(){toast("That file couldn't be opened.")};r.readAsText(f);
+    this.value="";
+  };
+  $("wipeBtn").onclick=function(){confirmSheet("Delete all vehicles?","Every vehicle and its maintenance history will be removed from this device. Download a backup file first if you might need it.","Delete all",function(){data.vehicles=[];data.example=false;save();go("home");toast("All vehicles deleted")},true)};
+  $("sampleBtn").onclick=function(){confirmSheet("Load example vehicles?","This replaces what's on this device with 3 example vehicles.","Load examples",function(){var u=data.units;var keep={reminders:data.reminders,custom:data.custom,style:data.style,paint:data.paint,mpaint:data.mpaint,lastBackup:data.lastBackup,homeTipOff:data.homeTipOff};data=sample();data.units=u;Object.keys(keep).forEach(function(k){data[k]=keep[k]});save();go("home")})};
+  $("fab").hidden=true;
+}
+
+function addCustom(name){
+  if(data.custom.some(function(x){return sameName(x,name)})||SERVICE_TYPES.some(function(t){return sameName(t,name)}))return;
+  data.custom.push(name);data.reminders[name]={on:false,miles:null,months:12};
+}
+
+function refreshSettings(){if(view.name==="settings"){var y=window.scrollY;render();window.scrollTo(0,y)}}
+
+function setFab(label,icon,fn){var f=$("fab");f.hidden=false;f.innerHTML=icon+"<span>"+label+"</span>";f.onclick=fn}
+
+/* ---------- sheets ---------- */
+var lastFocus=null;
+function openSheet(html,onReady){
+  lastFocus=document.activeElement;
+  var host=$("sheetHost");
+  host.innerHTML='<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="grab"></div>'+html+'</div></div>';
+  $("scrim").addEventListener("click",function(e){if(e.target.id==="scrim")closeSheet()});
+  document.body.style.overflow="hidden";
+  onReady&&onReady();
+  var first=host.querySelector("input,textarea,select,button.primary");
+  if(first&&window.matchMedia("(pointer:fine)").matches)first.focus();
+}
+function closeSheet(){$("sheetHost").innerHTML="";document.body.style.overflow="";if(lastFocus&&lastFocus.focus)try{lastFocus.focus()}catch(e){}}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("scrim"))closeSheet()});
+
+function confirmSheet(title,body,okLabel,fn,danger){
+  openSheet('<h2 id="sheetTitle">'+esc(title)+'</h2><p class="hint" style="font-size:15px">'+esc(body)+'</p>'+
+    '<div class="sheet-btns"><button class="btn" type="button" id="cCancel">Cancel</button><button class="btn '+(danger?"danger":"primary")+'" type="button" id="cOk">'+esc(okLabel)+'</button></div>',
+    function(){$("cCancel").onclick=closeSheet;$("cOk").onclick=function(){closeSheet();fn()}});
+}
+
+function readNum(id){var v=String($(id).value).replace(/[^\d.]/g,"");return v===""?NaN:Math.round(+v)}
+
+function vehicleSheet(v,focusId){
+  var isNew=!v,im=v?v.intervalMiles:(unit()==="km"?8000:5000),imo=v?v.intervalMonths:6;
+  var milePresets=unit()==="km"?[5000,8000,10000,15000]:[3000,5000,7500,10000];
+  var h='<h2 id="sheetTitle">'+(isNew?"Add vehicle":"Edit vehicle")+'</h2>'+
+    '<form id="vForm" novalidate>'+
+    '<div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="field"><label for="vName">Vehicle</label><input id="vName" maxlength="60" autocomplete="off" placeholder="e.g. 2019 Honda CR-V" value="'+(v?esc(v.name):"")+'"></div>'+
+    '<div class="field"><label for="vPlate">Nickname or plate (optional)</label><input id="vPlate" maxlength="60" autocomplete="off" placeholder="e.g. Work truck" value="'+(v?esc(v.plate):"")+'"></div>'+
+    '<div class="field"><label for="vMiles">Current mileage ('+unit()+')</label><input id="vMiles" inputmode="numeric" placeholder="e.g. 46,850" value="'+(v&&v.miles?num(v.miles):"")+'"></div>'+
+    '<div class="field"><span class="lbl">Registration (optional)</span>'+
+      '<div class="two"><input id="vRegNo" maxlength="20" autocomplete="off" autocapitalize="characters" aria-label="Registration or plate number" placeholder="Plate number" value="'+(v?esc(v.reg.number):"")+'">'+
+      '<input id="vRegState" maxlength="30" autocomplete="off" aria-label="State or region" placeholder="State" value="'+(v?esc(v.reg.state):"")+'"></div>'+
+      '<label for="vRegExp" class="sub-lbl">Registration expires</label><input id="vRegExp" type="date" value="'+(v?esc(v.reg.expires):"")+'">'+
+    '</div>'+
+    '<div class="field"><label for="vVin">VIN (optional)</label><input id="vVin" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="17 letters and numbers" value="'+(v?esc(v.vin):"")+'">'+
+      '<p class="hint" id="vinHint">Find it on the driver\'s side of the dashboard, in the driver\'s door frame or on your registration.</p></div>'+
+    '<div class="field"><label for="vLook">Look for this vehicle</label><select id="vLook">'+
+      '<option value="">Same as the app ('+esc((LOOKS.filter(function(l){return l[0]===data.style})[0]||LOOKS[0])[1])+')</option>'+
+      lookChoices().map(function(c){return '<option value="'+c[0]+'"'+(v&&v.look===c[0]?" selected":"")+'>'+esc(c[1])+'</option>'}).join("")+
+    '</select><p class="hint">Opening this vehicle switches to its own look. The home screen keeps the app\'s look from Settings.</p></div>'+
+    '<div class="field"><span class="lbl">Change oil every</span><div class="two"><input id="vInt" inputmode="numeric" aria-label="Interval in '+unit()+'" value="'+num(im)+'"><select id="vMon" aria-label="Interval in months">'+
+      [3,4,6,9,12].map(function(m){return '<option value="'+m+'"'+(m===imo?" selected":"")+'>'+m+' months</option>'}).join("")+'</select></div>'+
+      '<div class="presets" id="intPresets">'+milePresets.map(function(p){return '<button class="preset" type="button" data-int="'+p+'" aria-pressed="'+(p===im)+'">'+num(p)+' '+unit()+'</button>'}).join("")+'</div>'+
+      '<p class="hint">Whichever comes first. Check your owner\'s manual if you\'re not sure. Many newer cars with synthetic oil use 7,500 to 10,000 miles.</p></div>';
+  if(isNew){
+    if(data.reminders["Tire rotation"].on)h+='<div class="field"><span class="lbl">Last tire rotation (optional)</span><div class="two"><input id="vRotDate" type="date" aria-label="Date of last tire rotation" max="'+iso(today())+'"><input id="vRotMiles" inputmode="numeric" aria-label="Mileage at last tire rotation" placeholder="Mileage"></div></div>';
+    h+='<div class="field"><span class="lbl">Last oil change (optional)</span><div class="two"><input id="vLastDate" type="date" aria-label="Date of last oil change" max="'+iso(today())+'"><input id="vLastMiles" inputmode="numeric" aria-label="Mileage at last oil change" placeholder="Mileage"></div></div>';
+  }
+  h+='<p class="err" id="vErr" hidden></p>'+
+    '<div class="sheet-btns"><button class="btn" type="button" id="vCancel">Cancel</button><button class="btn primary" type="submit">'+(isNew?"Add vehicle":"Save")+'</button></div>'+
+    (isNew?'':'<button class="btn danger block" type="button" id="vDelete">Delete vehicle</button>')+
+    '</div></form>';
+  openSheet(h,function(){
+    $("vCancel").onclick=closeSheet;
+    function vinHint(){
+      var x=vinClean($("vVin").value),st=vinStatus(x),h=$("vinHint");
+      h.className="hint"+(st&&st!=="ok"?" warn-txt":"");
+      h.textContent=!x?"Find it on the driver's side of the dashboard, in the driver's door frame or on your registration."
+        :st==="ok"?"Looks right"+(vinYear(x)?": a "+vinYear(x)+" model year vehicle.":".")
+        :st==="letters"?"VINs never use the letters I, O or Q. Check for a 1 or 0."
+        :st==="short"?x.length+" of 17 characters."
+        :"This doesn't pass the VIN check, so a character may be mistyped.";
+    }
+    $("vVin").addEventListener("input",vinHint);vinHint();
+    if(focusId)setTimeout(function(){var f=$(focusId);if(f){f.scrollIntoView({block:"center"});f.focus()}},60);
+    function syncPresets(){var cur=readNum("vInt");Array.prototype.forEach.call(document.querySelectorAll("[data-int]"),function(b){b.setAttribute("aria-pressed",String(+b.getAttribute("data-int")===cur))})}
+    $("vInt").addEventListener("input",syncPresets);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-int]"),function(b){b.onclick=function(){$("vInt").value=num(+b.getAttribute("data-int"));syncPresets()}});
+    if(!isNew)$("vDelete").onclick=function(){confirmSheet("Delete "+v.name+"?","This removes the vehicle and its whole maintenance history.","Delete vehicle",function(){
+      data.vehicles=data.vehicles.filter(function(x){return x.id!==v.id});save();go("home");toast("Vehicle deleted")},true)};
+    $("vForm").onsubmit=function(e){
+      e.preventDefault();
+      var err=$("vErr"),name=$("vName").value.trim(),miles=readNum("vMiles"),iv=readNum("vInt"),mon=+$("vMon").value;
+      function fail(m){err.textContent=m;err.hidden=false}
+      if(!name)return fail("Give the vehicle a name, like the year, make and model.");
+      if(!(iv>=500&&iv<=50000))return fail("Enter how many "+unit()+" between oil changes, between 500 and 50,000.");
+      if($("vMiles").value.trim()&&!(miles>=0&&miles<10000000))return fail("Enter the current mileage as a number.");
+      var hasRot=isNew&&!!$("vRotDate");
+      var rotDate=hasRot?$("vRotDate").value:"",rotMilesRaw=hasRot?$("vRotMiles").value.trim():"",rotMiles=hasRot?readNum("vRotMiles"):NaN;
+      if(hasRot&&(rotDate||rotMilesRaw)){
+        if(!parse(rotDate))return fail("Add the date of the last tire rotation too.");
+        if(parse(rotDate)>today())return fail("The last tire rotation can't be in the future.");
+        if(rotMilesRaw&&!(rotMiles>=0))return fail("Enter the tire rotation mileage as a number.");
+      }
+      var lastDate=isNew?$("vLastDate").value:"",lastMiles=isNew?readNum("vLastMiles"):NaN;
+      if(isNew&&(lastDate||$("vLastMiles").value.trim())){
+        if(!parse(lastDate))return fail("Add the date of the last oil change too.");
+        if(!(lastMiles>=0))return fail("Add the mileage at the last oil change too.");
+        if(parse(lastDate)>today())return fail("The last oil change can't be in the future.");
+      }
+      var regExp=$("vRegExp").value;
+      if(regExp&&!parse(regExp))return fail("Choose the registration expiry date, or leave it blank.");
+      var target=v||{id:uid(),log:[],services:[]};
+      var newVin=vinClean($("vVin").value);
+      if(newVin!==target.vin){target.vin=newVin;target.specs=null;target.recalls=null}
+      target.reg={number:$("vRegNo").value.trim().toUpperCase().slice(0,20),state:$("vRegState").value.trim().slice(0,30),expires:regExp};
+      target.name=name.slice(0,60);target.plate=$("vPlate").value.trim().slice(0,60);
+      target.intervalMiles=iv;target.intervalMonths=mon;target.look=$("vLook").value;
+      if(hasRot&&parse(rotDate))target.services.push({id:uid(),type:"Tire rotation",date:rotDate,miles:rotMilesRaw?rotMiles:null,note:""});
+      if(!isNaN(miles)&&miles!==target.miles){target.miles=miles;target.milesDate=iso(today())}
+      if(isNew&&parse(lastDate))target.log.push({id:uid(),date:lastDate,miles:lastMiles,note:""});
+      if(isNew){if(data.example){data.vehicles=[];data.example=false}data.vehicles.push(target)}
+      save();closeSheet();
+      if(isNew){go("vehicle",target.id);toast("Vehicle added")}else{render();toast("Saved")}
+    };
+  });
+}
+
+function logSheet(v){
+  var cur=currentMiles(v);
+  var h='<h2 id="sheetTitle">Log oil change</h2><p class="hint" style="margin-top:-8px">'+esc(v.name)+'</p>'+
+    '<form id="lForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="two"><div class="field"><label for="lDate">Date</label><input id="lDate" type="date" value="'+iso(today())+'" max="'+iso(today())+'"></div>'+
+    '<div class="field"><label for="lMiles">Mileage ('+unit()+')</label><input id="lMiles" inputmode="numeric" placeholder="'+(cur?num(cur):"e.g. 46,850")+'"></div></div>'+
+    '<div class="field"><label for="lNote">Notes (optional)</label><input id="lNote" maxlength="200" autocomplete="off" placeholder="e.g. 0W-20 synthetic, new filter, Jiffy Lube"></div>'+
+    '<div class="preview" id="lPrev" aria-live="polite"></div>'+
+    '<p class="err" id="lErr" hidden></p>'+
+    '<div class="sheet-btns"><button class="btn" type="button" id="lCancel">Cancel</button><button class="btn primary" type="submit">Save oil change</button></div>'+
+    '</div></form>';
+  openSheet(h,function(){
+    $("lCancel").onclick=closeSheet;
+    function prev(){
+      var d=parse($("lDate").value),m=readNum("lMiles");
+      $("lPrev").innerHTML=(d&&m>=0)?'Next oil change at <b>'+num(m+v.intervalMiles)+' '+unit()+'</b> or by <b>'+esc(fmtDate(addMonths(d,v.intervalMonths)))+'</b>, whichever comes first.'
+        :'Enter the date and mileage to see when the next oil change is due.';
+    }
+    $("lDate").addEventListener("input",prev);$("lMiles").addEventListener("input",prev);prev();
+    $("lForm").onsubmit=function(e){
+      e.preventDefault();
+      var err=$("lErr"),d=$("lDate").value,m=readNum("lMiles");
+      function fail(x){err.textContent=x;err.hidden=false}
+      if(!parse(d))return fail("Choose the date of the oil change.");
+      if(parse(d)>today())return fail("The date can't be in the future.");
+      if(!(m>=0&&m<10000000))return fail("Enter the mileage from the odometer.");
+      v.log.push({id:uid(),date:d,miles:m,note:$("lNote").value.trim().slice(0,200)});
+      if(m>(v.miles||0)){v.miles=m;v.milesDate=d}
+      if(data.example)data.example=false;
+      save();closeSheet();render();
+      var s=status(v);toast("Saved. Next due at "+num(s.dueMiles)+" "+unit()+" or "+fmtDate(s.dueDate));
+    };
+  });
+}
+
+function serviceSheet(v,pre){
+  var cur=currentMiles(v);
+  var h='<h2 id="sheetTitle">Add maintenance</h2><p class="hint" style="margin-top:-8px">'+esc(v.name)+'</p>'+
+    '<form id="sForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="field"><span class="lbl">What was done? Pick all that apply.</span><div class="presets" id="sTypes">'+
+      SERVICE_TYPES.concat(data.custom).map(function(t){return '<button class="preset" type="button" data-type="'+esc(t)+'" aria-pressed="'+(t===pre)+'">'+esc(t)+'</button>'}).join("")+
+      '<button class="preset" type="button" data-type="" id="sOtherBtn" aria-pressed="false">Other…</button></div></div>'+
+    '<div class="field" id="sOtherWrap" hidden><label for="sOther">Other maintenance</label><input id="sOther" maxlength="40" autocomplete="off" placeholder="e.g. Alternator, spark plugs"><label class="check"><input type="checkbox" id="sSave" checked> Add to my parts list for next time</label></div>'+
+    '<div class="two"><div class="field"><label for="sDate">Date</label><input id="sDate" type="date" value="'+iso(today())+'" max="'+iso(today())+'"></div>'+
+    '<div class="field"><label for="sMiles">Mileage (optional)</label><input id="sMiles" inputmode="numeric" placeholder="'+(cur?num(cur):"e.g. 46,850")+'"></div></div>'+
+    '<div class="field"><label for="sNote">Notes (optional)</label><input id="sNote" maxlength="200" autocomplete="off" placeholder="e.g. Brand, part number, shop, cost"></div>'+
+    '<p class="err" id="sErr" hidden></p>'+
+    '<div class="sheet-btns"><button class="btn" type="button" id="sCancel">Cancel</button><button class="btn primary" type="submit">Save</button></div>'+
+    '</div></form>';
+  openSheet(h,function(){
+    $("sCancel").onclick=closeSheet;
+    Array.prototype.forEach.call(document.querySelectorAll("#sTypes .preset"),function(b){b.onclick=function(){
+      var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",String(on));$("sErr").hidden=true;
+      if(b.id==="sOtherBtn"){$("sOtherWrap").hidden=!on;if(on)$("sOther").focus()}
+    }});
+    $("sForm").onsubmit=function(e){
+      e.preventDefault();
+      var err=$("sErr"),d=$("sDate").value,mRaw=$("sMiles").value.trim(),m=readNum("sMiles");
+      function fail(x){err.textContent=x;err.hidden=false}
+      var types=[];
+      Array.prototype.forEach.call(document.querySelectorAll('#sTypes .preset[aria-pressed="true"]'),function(b){
+        if(b.id==="sOtherBtn"){var o=$("sOther").value.trim();if(o)types.push(o.slice(0,40))}else types.push(b.getAttribute("data-type"));
+      });
+      if($("sOtherBtn").getAttribute("aria-pressed")==="true"&&!$("sOther").value.trim())return fail("Type what the other maintenance was.");
+      if(!types.length)return fail("Pick what was done, like Tire rotation or Battery replacement.");
+      if(!parse(d))return fail("Choose the date it was done.");
+      if(parse(d)>today())return fail("The date can't be in the future.");
+      if(mRaw&&!(m>=0&&m<10000000))return fail("Enter the mileage as a number, or leave it blank.");
+      var other=$("sOtherBtn").getAttribute("aria-pressed")==="true"?$("sOther").value.trim().slice(0,40):"";
+      if(other){
+        // match an existing name so history and reminders stay together
+        var known=SERVICE_TYPES.concat(data.custom).filter(function(t){return sameName(t,other)})[0];
+        if(known){types[types.indexOf(other)]=known}
+        else if($("sSave").checked)addCustom(other);
+      }
+      types=types.filter(function(t,i){return types.indexOf(t)===i});
+      types.forEach(function(t){v.services.push({id:uid(),type:t,date:d,miles:mRaw?m:null,note:$("sNote").value.trim().slice(0,200)})});
+      if(mRaw&&m>(v.miles||0)){v.miles=m;v.milesDate=d}
+      if(data.example)data.example=false;
+      save();closeSheet();render();
+      // if this restarts a reminder, say when the next one is due
+      var hit=active(v).filter(function(x){return !x.def.oil&&x.s.state!=="none"&&x.s.last.date===d&&[x.def.type].concat(x.def.also||[]).some(function(t){return types.indexOf(t)>=0})})[0];
+      if(hit)toast("Saved. Next "+hit.def.type.toLowerCase()+" "+(hit.s.dueMiles!=null?"at "+num(hit.s.dueMiles)+" "+unit()+" or ":"")+"by "+fmtDate(hit.s.dueDate));
+      else toast(types.length===1?types[0]+" saved":types.length+" items saved");
+    };
+  });
+}
+
+function milesSheet(v){
+  var cur=currentMiles(v);
+  openSheet('<h2 id="sheetTitle">Update mileage</h2><p class="hint" style="margin-top:-8px">'+esc(v.name)+'</p>'+
+    '<form id="mForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="field"><label for="mMiles">Odometer now ('+unit()+')</label><input id="mMiles" inputmode="numeric" value="'+(cur?num(cur):"")+'"></div>'+
+    '<p class="hint">Keeping this current tells the tracker how many '+unit()+' you have left before the next oil change.</p>'+
+    '<p class="err" id="mErr" hidden></p>'+
+    '<div class="sheet-btns"><button class="btn" type="button" id="mCancel">Cancel</button><button class="btn primary" type="submit">Save mileage</button></div>'+
+    '</div></form>',function(){
+      $("mCancel").onclick=closeSheet;
+      var inp=$("mMiles");inp.addEventListener("focus",function(){inp.select()});
+      $("mForm").onsubmit=function(e){
+        e.preventDefault();
+        var m=readNum("mMiles"),err=$("mErr");
+        if(!(m>=0&&m<10000000)){err.textContent="Enter the mileage from the odometer.";err.hidden=false;return}
+        var last=sortedLog(v)[0];
+        if(last&&m<last.miles){err.textContent="That's lower than the "+num(last.miles)+" "+unit()+" at the last oil change. Check the number, or edit the oil change history.";err.hidden=false;return}
+        v.miles=m;v.milesDate=iso(today());save();closeSheet();render();toast("Mileage updated");
+      };
+    });
+}
+
+/* keep in sync with other tabs and roll statuses over at midnight */
+window.addEventListener("storage",function(e){if(e.key===KEY&&e.newValue){try{var c=clean(JSON.parse(e.newValue));if(c){data=c;if(!$("scrim"))render()}}catch(x){}}});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!$("scrim"))render()});
+
+/* ---------- installable app ---------- */
+// Chrome and Edge on Android offer an install prompt; keep it for the Install button
+var installEvent=null;
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();installEvent=e;if(!$("scrim"))render()});
+window.addEventListener("appinstalled",function(){installEvent=null;data.homeTipOff=true;save();if(!$("scrim"))render();toast("Installed. Open it from your Home Screen.")});
+function installApp(){
+  if(!installEvent)return;
+  installEvent.prompt();
+  installEvent.userChoice.then(function(){installEvent=null;render()},function(){});
+}
+// number on the Home Screen icon: vehicles that are due soon or overdue
+function updateBadge(){
+  try{
+    if(!navigator.setAppBadge)return;
+    var n=data.example?0:data.vehicles.filter(function(v){var o=overall(v);return o==="late"||o==="soon"}).length;
+    (n?navigator.setAppBadge(n):navigator.clearAppBadge()).catch(function(){});
+  }catch(e){}
+}
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!inViewer()){
+  window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+}
+
+render();
+})();
+</script>
+</body>
+</html>

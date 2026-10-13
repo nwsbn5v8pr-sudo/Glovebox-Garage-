@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs>
+<radialGradient id="bg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#1c1f26"/><stop offset="1" stop-color="#07080b"/></radialGradient>
+<filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<rect width="512" height="512" fill="url(#bg)"/>
+
+<g filter="url(#glow)" fill="#ffb21a" stroke="#ffb21a">
+<line x1="96" y1="78" x2="416" y2="78" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+<line x1="96" y1="434" x2="416" y2="434" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+<path d="M229.4 141.0 L234.2 107.6 L277.8 107.6 L282.6 141.0 L318.4 155.9 L345.5 135.6 L376.4 166.5 L356.1 193.6 L371.0 229.4 L404.4 234.2 L404.4 277.8 L371.0 282.6 L356.1 318.4 L376.4 345.5 L345.5 376.4 L318.4 356.1 L282.6 371.0 L277.8 404.4 L234.2 404.4 L229.4 371.0 L193.6 356.1 L166.5 376.4 L135.6 345.5 L155.9 318.4 L141.0 282.6 L107.6 277.8 L107.6 234.2 L141.0 229.4 L155.9 193.6 L135.6 166.5 L166.5 135.6 L193.6 155.9Z M334 256 A78 78 0 1 0 178 256 A78 78 0 1 0 334 256Z" fill-rule="evenodd" stroke="none"/>
+<path d="M210 282 A52 52 0 1 1 302 282" fill="none" stroke-width="13" stroke-linecap="round"/><line x1="256" y1="264" x2="286" y2="232" stroke-width="13" stroke-linecap="round"/><circle cx="256" cy="264" r="12" stroke="none"/>
+</g></svg>
