@@ -295,6 +295,28 @@ textarea{resize:vertical;min-height:70px}
 .look-sw.classic{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#c62b2b 0 32px,#f3e6c8 32px)}
 .look-sw.classic::before{content:"Classic";position:absolute;left:10px;top:4px;font:400 20px/1 "Yellowtail",cursive;color:#fff6e2}
 .look-sw.classic::after{content:"";position:absolute;left:10px;bottom:7px;width:44%;height:9px;border-radius:9px;background:#34b3a8;border:2px solid #2a211c}
+:root[data-style="classic"][data-cpaint="turquoise"]{--brand:#14726d;--accent:#f0605d;--accent-ink:#3a0d0c}
+@media (prefers-color-scheme:dark){:root[data-style="classic"][data-cpaint="turquoise"]:not([data-theme="light"]){--brand:#0f5551;--accent:#ff8a7a;--accent-ink:#3a0d0c}}
+:root[data-style="classic"][data-cpaint="turquoise"][data-theme="dark"]{--brand:#0f5551;--accent:#ff8a7a;--accent-ink:#3a0d0c}
+:root[data-style="classic"][data-cpaint="pink"]{--brand:#b3306a;--accent:#4fbfa5;--accent-ink:#0e2f28}
+@media (prefers-color-scheme:dark){:root[data-style="classic"][data-cpaint="pink"]:not([data-theme="light"]){--brand:#7d1f48;--accent:#7fe0c6;--accent-ink:#0d2a24}}
+:root[data-style="classic"][data-cpaint="pink"][data-theme="dark"]{--brand:#7d1f48;--accent:#7fe0c6;--accent-ink:#0d2a24}
+:root[data-style="classic"][data-cpaint="blue"]{--brand:#1f5c99;--accent:#f2c14e;--accent-ink:#3a2a00}
+@media (prefers-color-scheme:dark){:root[data-style="classic"][data-cpaint="blue"]:not([data-theme="light"]){--brand:#173f6b;--accent:#ffd166;--accent-ink:#3a2a00}}
+:root[data-style="classic"][data-cpaint="blue"][data-theme="dark"]{--brand:#173f6b;--accent:#ffd166;--accent-ink:#3a2a00}
+:root[data-style="classic"][data-cpaint="seafoam"]{--brand:#2a7559;--accent:#f08a5b;--accent-ink:#3a1607}
+@media (prefers-color-scheme:dark){:root[data-style="classic"][data-cpaint="seafoam"]:not([data-theme="light"]){--brand:#1c5442;--accent:#ff9f73;--accent-ink:#3a1607}}
+:root[data-style="classic"][data-cpaint="seafoam"][data-theme="dark"]{--brand:#1c5442;--accent:#ff9f73;--accent-ink:#3a1607}
+:root[data-style="classic"][data-cpaint="black"]{--brand:#1f1b18;--accent:#d8343a;--accent-ink:#ffffff}
+@media (prefers-color-scheme:dark){:root[data-style="classic"][data-cpaint="black"]:not([data-theme="light"]){--brand:#141110;--accent:#ff6f6f;--accent-ink:#2a0c0c}}
+:root[data-style="classic"][data-cpaint="black"][data-theme="dark"]{--brand:#141110;--accent:#ff6f6f;--accent-ink:#2a0c0c}
+.look-sw.classic.turquoise{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#14726d 0 32px,#f3e6c8 32px)}.look-sw.classic.turquoise::after{background:#f0605d}
+.look-sw.classic.pink{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#b3306a 0 32px,#f3e6c8 32px)}.look-sw.classic.pink::after{background:#4fbfa5}
+.look-sw.classic.blue{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#1f5c99 0 32px,#f3e6c8 32px)}.look-sw.classic.blue::after{background:#f2c14e}
+.look-sw.classic.seafoam{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#2a7559 0 32px,#f3e6c8 32px)}.look-sw.classic.seafoam::after{background:#f08a5b}
+.look-sw.classic.black{background:repeating-conic-gradient(#2a211c 0 25%,#fffaf0 0 50%) 0 32px/8px 8px repeat-x,linear-gradient(#1f1b18 0 32px,#f3e6c8 32px)}.look-sw.classic.black::after{background:#d8343a}
+.paint.c-red i{--c1:#c62b2b;--c2:#34b3a8}.paint.c-turquoise i{--c1:#14726d;--c2:#f0605d}.paint.c-pink i{--c1:#b3306a;--c2:#4fbfa5}.paint.c-blue i{--c1:#1f5c99;--c2:#f2c14e}.paint.c-seafoam i{--c1:#2a7559;--c2:#f08a5b}.paint.c-black i{--c1:#1f1b18;--c2:#d8343a}
+.paint[class*="c-"] i{background:linear-gradient(135deg,var(--c1) 0 55%,#fffaf0 55% 62%,var(--c2) 62%);border-color:#2a211c}
 
 /* ===== Lowrider: candy paint with metal flake, gold-leaf pinstripes, Old English lettering, tuck-and-roll upholstery.
    Light is pearl white with candy blue; dark is black candy under streetlights. ===== */
@@ -846,7 +868,7 @@ function clean(d){
       id:String(v.id||uid()),name:String(v.name||"Vehicle").slice(0,60),plate:String(v.plate||"").slice(0,60),
       year:/^\d{4}$/.test(String(v.year||""))?String(v.year):"",make:cleanStr(v.make,40),model:cleanStr(v.model,60),
       miles:+v.miles>0?Math.round(+v.miles):0,milesDate:parse(v.milesDate)?v.milesDate:"",
-      look:lookChoices().some(function(c){return c[0]===v.look})?v.look:"",
+      look:lookChoices().some(function(c){return c[0]===(v.look==="classic"?"classic:red":v.look)})?(v.look==="classic"?"classic:red":v.look):"",
       vin:vinClean(v.vin),
       specs:cleanSpecs(v.specs),recalls:cleanRecalls(v.recalls),
       reg:{number:String(v.reg&&v.reg.number||"").slice(0,20),state:String(v.reg&&v.reg.state||"").slice(0,30),
@@ -864,6 +886,7 @@ function clean(d){
   out.backupSnooze=parse(d.backupSnooze)?d.backupSnooze:"";
   out.homeTipOff=!!d.homeTipOff;
   out.mpaint=MPAINTS.some(function(p){return p[0]===d.mpaint})?d.mpaint:"orange";
+  out.cpaint=CPAINTS.some(function(p){return p[0]===d.cpaint})?d.cpaint:"red";
   out.paint=PAINTS.some(function(p){return p[0]===d.paint})?d.paint:"blue";
   out.custom=cleanCustom(d.custom);
   out.reminders=cleanReminders({units:out.units,custom:out.custom,reminders:d.reminders,vehicles:d.vehicles});
@@ -881,14 +904,16 @@ var REMINDERS=[
   {type:"Alignment",mi:null,months:24},
   {type:"Fuel filter",mi:30000,km:50000,months:24}
 ];
+var CPAINTS=[["red","Fire engine red"],["turquoise","Tropical turquoise"],["pink","Flamingo pink"],["blue","Harbor blue"],["seafoam","Seafoam green"],["black","Black and cream"]];
 var PAINTS=[["blue","Candy blue"],["green","Candy green"],["red","Candy apple red"],["rootbeer","Root beer"]];
 var MPAINTS=[["orange","Hugger orange"],["blue","Grabber blue"],["green","Highland green"],["yellow","Rally yellow"]];
 var LOOKS=[["modern","Glovebox"],["classic","Classic '50s"],["lowrider","Lowrider"],["jdm","JDM"],["offroad","Off Road"],["luxury","Luxury"],["muscle","'60s Muscle"]];
-// every look a vehicle can pick, with Lowrider and Muscle paints listed separately
+// every look a vehicle can pick, with Classic, Lowrider and Muscle paints listed separately
 function lookChoices(){
   var out=[];
   LOOKS.forEach(function(l){
-    if(l[0]==="lowrider")PAINTS.forEach(function(p){out.push(["lowrider:"+p[0],l[1]+" · "+p[1]])});
+    if(l[0]==="classic")CPAINTS.forEach(function(p){out.push(["classic:"+p[0],l[1]+" · "+p[1]])});
+    else if(l[0]==="lowrider")PAINTS.forEach(function(p){out.push(["lowrider:"+p[0],l[1]+" · "+p[1]])});
     else if(l[0]==="muscle")MPAINTS.forEach(function(p){out.push(["muscle:"+p[0],l[1]+" · "+p[1]])});
     else out.push([l[0],l[1]]);
   });
@@ -1154,13 +1179,13 @@ function vehicle(id){for(var i=0;i<data.vehicles.length;i++)if(data.vehicles[i].
 
 // a vehicle can have its own look; its screen uses it, everything else uses the app's look
 function lookOf(v){
-  var L={style:data.style||"modern",paint:data.paint||"blue",mpaint:data.mpaint||"orange"};
-  if(v&&v.look){var p=v.look.split(":");L.style=p[0];if(p[0]==="lowrider")L.paint=p[1];if(p[0]==="muscle")L.mpaint=p[1]}
+  var L={style:data.style||"modern",paint:data.paint||"blue",mpaint:data.mpaint||"orange",cpaint:data.cpaint||"red"};
+  if(v&&v.look){var p=v.look.split(":");L.style=p[0];if(p[0]==="lowrider")L.paint=p[1];if(p[0]==="classic")L.cpaint=p[1];if(p[0]==="muscle")L.mpaint=p[1]}
   return L;
 }
 function applyStyle(){
   var L=lookOf(view.name==="vehicle"?vehicle(view.id):null),r=document.documentElement;
-  r.setAttribute("data-style",L.style);r.setAttribute("data-paint",L.paint);r.setAttribute("data-mpaint",L.mpaint);
+  r.setAttribute("data-style",L.style);r.setAttribute("data-paint",L.paint);r.setAttribute("data-mpaint",L.mpaint);r.setAttribute("data-cpaint",L.cpaint);
 }
 function render(){
   if(view.name==="vehicle"&&!vehicle(view.id))view={name:"home"};
@@ -1390,13 +1415,15 @@ function renderSettings(){
   '<h2 class="section-h">Look</h2>'+
   '<div class="looks" role="group" aria-label="Look">'+
     '<button class="look" type="button" data-look="modern" aria-pressed="'+(data.style==="modern")+'"><span class="look-sw modern"></span>Glovebox (default)</button>'+
-    '<button class="look" type="button" data-look="classic" aria-pressed="'+(data.style==="classic")+'"><span class="look-sw classic"></span>Classic \'50s</button>'+
+    '<button class="look" type="button" data-look="classic" aria-pressed="'+(data.style==="classic")+'"><span class="look-sw classic '+esc(data.cpaint)+'"></span>Classic \'50s</button>'+
     '<button class="look" type="button" data-look="lowrider" aria-pressed="'+(data.style==="lowrider")+'"><span class="look-sw lowrider '+esc(data.paint)+'"></span>Lowrider</button>'+
     '<button class="look" type="button" data-look="jdm" aria-pressed="'+(data.style==="jdm")+'"><span class="look-sw jdm"></span>JDM</button>'+
     '<button class="look" type="button" data-look="offroad" aria-pressed="'+(data.style==="offroad")+'"><span class="look-sw offroad"></span>Off Road</button>'+
     '<button class="look" type="button" data-look="luxury" aria-pressed="'+(data.style==="luxury")+'"><span class="look-sw luxury"></span>Luxury</button>'+
     '<button class="look" type="button" data-look="muscle" aria-pressed="'+(data.style==="muscle")+'"><span class="look-sw muscle '+esc(data.mpaint)+'"></span>\'60s Muscle</button>'+
   '</div>'+
+  (data.style==="classic"?'<div class="field"><span class="lbl">Two-tone paint</span><div class="paints" role="group" aria-label="Two-tone paint">'+
+    CPAINTS.map(function(p){return '<button class="paint c-'+p[0]+'" type="button" data-cpaint="'+p[0]+'" aria-pressed="'+(data.cpaint===p[0])+'"><i></i>'+p[1]+'</button>'}).join("")+'</div></div>':'')+
   (data.style==="muscle"?'<div class="field"><span class="lbl">Factory paint</span><div class="paints" role="group" aria-label="Factory paint">'+
     MPAINTS.map(function(p){return '<button class="paint m-'+p[0]+'" type="button" data-mpaint="'+p[0]+'" aria-pressed="'+(data.mpaint===p[0])+'"><i></i>'+p[1]+'</button>'}).join("")+'</div></div>':'')+
   (data.style==="lowrider"?'<div class="field"><span class="lbl">Lowrider paint</span><div class="paints" role="group" aria-label="Lowrider paint">'+
@@ -1460,6 +1487,10 @@ function renderSettings(){
     data.style=b.getAttribute("data-look");save();var y=window.scrollY;render();window.scrollTo(0,y);
     toast({classic:"Classic '50s look on",lowrider:"Lowrider look on",jdm:"JDM look on",offroad:"Off Road look on",luxury:"Luxury look on",muscle:"'60s Muscle look on"}[data.style]||"Glovebox look on");
   }});
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-cpaint]"),function(b){b.onclick=function(){
+    data.cpaint=b.getAttribute("data-cpaint");save();var y=window.scrollY;render();window.scrollTo(0,y);
+    toast(CPAINTS.filter(function(p){return p[0]===data.cpaint})[0][1]+" paint on");
+  }});
   Array.prototype.forEach.call(document.querySelectorAll("button[data-mpaint]"),function(b){b.onclick=function(){
     data.mpaint=b.getAttribute("data-mpaint");save();var y=window.scrollY;render();window.scrollTo(0,y);
     toast(MPAINTS.filter(function(p){return p[0]===data.mpaint})[0][1]+" paint on");
@@ -1515,7 +1546,7 @@ function renderSettings(){
     this.value="";
   };
   $("wipeBtn").onclick=function(){confirmSheet("Delete all vehicles?","Every vehicle and its maintenance history will be removed from this device. Download a backup file first if you might need it.","Delete all",function(){data.vehicles=[];data.example=false;save();go("home");toast("All vehicles deleted")},true)};
-  $("sampleBtn").onclick=function(){confirmSheet("Load example vehicles?","This replaces what's on this device with 3 example vehicles.","Load examples",function(){var u=data.units;var keep={reminders:data.reminders,custom:data.custom,style:data.style,paint:data.paint,mpaint:data.mpaint,lastBackup:data.lastBackup,homeTipOff:data.homeTipOff};data=sample();data.units=u;Object.keys(keep).forEach(function(k){data[k]=keep[k]});save();go("home")})};
+  $("sampleBtn").onclick=function(){confirmSheet("Load example vehicles?","This replaces what's on this device with 3 example vehicles.","Load examples",function(){var u=data.units;var keep={reminders:data.reminders,custom:data.custom,style:data.style,paint:data.paint,mpaint:data.mpaint,cpaint:data.cpaint,lastBackup:data.lastBackup,homeTipOff:data.homeTipOff};data=sample();data.units=u;Object.keys(keep).forEach(function(k){data[k]=keep[k]});save();go("home")})};
   $("fab").hidden=true;
 }
 
