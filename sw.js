@@ -2,8 +2,8 @@
 // The app files are cached on install; pages are served from the cache and
 // refreshed in the background, so the app opens instantly and works offline.
 // Bump VERSION whenever the app files change.
-var VERSION = "gg-2026-10-14";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-32.png"];
+var VERSION = "gg-2026-10-14b";
+var CORE = ["./", "./index.html"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
@@ -21,6 +21,10 @@ self.addEventListener("fetch", function (e) {
   // the VIN and recall lookups must always be live
   if (/nhtsa\.(dot\.)?gov$/.test(url.hostname)) return;
   var sameOrigin = url.origin === self.location.origin;
+  // Leave the icons and the install manifest to the browser. iOS loads the
+  // Home Screen icon itself and can fall back to a letter if a service
+  // worker answers that request.
+  if (sameOrigin && (/\/icons\//.test(url.pathname) || /manifest\.webmanifest$/.test(url.pathname))) return;
   var isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
   if (!sameOrigin && !isFont) return;
   e.respondWith(caches.open(VERSION).then(function (cache) {
