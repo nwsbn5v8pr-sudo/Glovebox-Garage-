@@ -11,7 +11,13 @@
 <meta name="apple-mobile-web-app-title" content="Glovebox">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Glovebox Garage</title>
-<link rel="manifest" href="manifest.webmanifest">
+<script>
+/* iPhones and iPads build the Home Screen icon from the install manifest when it exists, and some iOS
+   versions fail there and show a letter. They get the apple-touch-icon instead; other phones get the
+   manifest so they can offer Install. */
+(function(){var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+if(!ios){var l=document.createElement("link");l.rel="manifest";l.href="manifest.webmanifest";document.head.appendChild(l)}})();
+</script>
 <link rel="icon" href="icons/favicon-32.png?v=3" sizes="32x32" type="image/png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

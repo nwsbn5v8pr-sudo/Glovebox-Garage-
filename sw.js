@@ -2,7 +2,7 @@
 // The app files are cached on install; pages are served from the cache and
 // refreshed in the background, so the app opens instantly and works offline.
 // Bump VERSION whenever the app files change.
-var VERSION = "gg-2026-10-14d";
+var VERSION = "gg-2026-10-14e";
 var CORE = ["./", "./index.html"];
 
 self.addEventListener("install", function (e) {
