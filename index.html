@@ -1621,6 +1621,16 @@ function onlineModels(make,year){
     return (modelCache[k]=list);
   },function(){return []});
 }
+// Registration state dropdown: [abbreviation, name]
+var US_STATES=[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["DC","District of Columbia"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]];
+var US_TERRITORIES=[["AS","American Samoa"],["GU","Guam"],["MP","Northern Mariana Islands"],["PR","Puerto Rico"],["VI","U.S. Virgin Islands"]];
+var CA_PROVINCES=[["AB","Alberta"],["BC","British Columbia"],["MB","Manitoba"],["NB","New Brunswick"],["NL","Newfoundland and Labrador"],["NT","Northwest Territories"],["NS","Nova Scotia"],["NU","Nunavut"],["ON","Ontario"],["PE","Prince Edward Island"],["QC","Quebec"],["SK","Saskatchewan"],["YT","Yukon"]];
+// Matches a saved state ("tx", "Texas") to its dropdown name, or "" if it isn't listed
+function stateName(x){
+  var t=String(x||"").trim().toLowerCase().replace(/\.$/,"");if(!t)return "";
+  var all=US_STATES.concat(US_TERRITORIES,CA_PROVINCES),hit=all.filter(function(r){return r[0].toLowerCase()===t||r[1].toLowerCase()===t})[0];
+  return hit?hit[1]:"";
+}
 function readNum(id){var v=String($(id).value).replace(/[^\d.]/g,"");return v===""?NaN:Math.round(+v)}
 
 function vehicleSheet(v,focusId){
@@ -1630,6 +1640,7 @@ function vehicleSheet(v,focusId){
   var years=[],y0=today().getFullYear()+1;for(var yy=y0;yy>=1950;yy--)years.push(String(yy));
   if(ymm.year&&years.indexOf(ymm.year)<0)years.push(ymm.year);
   var makeOther=!!ymm.make&&MAKE_NAMES.indexOf(ymm.make)<0;
+  var regState=v?stateName(v.reg.state):"",regOther=!!(v&&v.reg.state&&!regState);
   var h='<h2 id="sheetTitle">'+(isNew?"Add vehicle":"Edit vehicle")+'</h2>'+
     '<form id="vForm" novalidate>'+
     '<div style="display:flex;flex-direction:column;gap:14px">'+
@@ -1646,7 +1657,11 @@ function vehicleSheet(v,focusId){
     '<div class="field"><label for="vMiles">Current mileage ('+unit()+')</label><input id="vMiles" inputmode="numeric" placeholder="e.g. 46,850" value="'+(v&&v.miles?num(v.miles):"")+'"></div>'+
     '<div class="field"><span class="lbl">Registration (optional)</span>'+
       '<div class="two"><input id="vRegNo" maxlength="20" autocomplete="off" autocapitalize="characters" aria-label="Registration or plate number" placeholder="Plate number" value="'+(v?esc(v.reg.number):"")+'">'+
-      '<input id="vRegState" maxlength="30" autocomplete="off" aria-label="State or region" placeholder="State" value="'+(v?esc(v.reg.state):"")+'"></div>'+
+      '<select id="vRegState" aria-label="State or province"><option value="">State</option>'+
+        [["United States",US_STATES],["U.S. territories",US_TERRITORIES],["Canada",CA_PROVINCES]].map(function(g){
+          return '<optgroup label="'+g[0]+'">'+g[1].map(function(r){return '<option'+(r[1]===regState?" selected":"")+'>'+esc(r[1])+'</option>'}).join("")+'</optgroup>'}).join("")+
+        '<option value="other"'+(regOther?" selected":"")+'>Other…</option></select></div>'+
+      '<input id="vRegStateOther" maxlength="30" autocomplete="off" aria-label="State or region" placeholder="Type the state or region" value="'+(regOther?esc(v.reg.state):"")+'"'+(regOther?"":" hidden")+'>'+
       '<label for="vRegExp" class="sub-lbl">Registration expires</label><input id="vRegExp" type="date" value="'+(v?esc(v.reg.expires):"")+'">'+
     '</div>'+
     '<div class="field"><label for="vVin">VIN (optional)</label><input id="vVin" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="17 letters and numbers" value="'+(v?esc(v.vin):"")+'">'+
@@ -1716,6 +1731,7 @@ function vehicleSheet(v,focusId){
       modelWanted=this.value;var other=this.value==="other";$("vModelOther").hidden=!other;
       if(other)$("vModelOther").focus();syncName();
     };
+    $("vRegState").onchange=function(){var o=this.value==="other";$("vRegStateOther").hidden=!o;if(o)$("vRegStateOther").focus()};
     $("vMakeOther").addEventListener("input",syncName);
     $("vModelOther").addEventListener("input",syncName);
     $("vName").addEventListener("input",function(){nameOwn=!!this.value.trim()&&this.value.trim()!==autoName()});
@@ -1752,7 +1768,7 @@ function vehicleSheet(v,focusId){
       var target=v||{id:uid(),log:[],services:[]};
       var newVin=vinClean($("vVin").value);
       if(newVin!==target.vin){target.vin=newVin;target.specs=null;target.recalls=null}
-      target.reg={number:$("vRegNo").value.trim().toUpperCase().slice(0,20),state:$("vRegState").value.trim().slice(0,30),expires:regExp};
+      target.reg={number:$("vRegNo").value.trim().toUpperCase().slice(0,20),state:($("vRegState").value==="other"?$("vRegStateOther").value:$("vRegState").value).trim().slice(0,30),expires:regExp};
       target.year=$("vYear").value;target.make=getMake();target.model=getModel();
       target.name=name.slice(0,60);target.plate=$("vPlate").value.trim().slice(0,60);
       target.intervalMiles=iv;target.intervalMonths=mon;target.look=$("vLook").value;
